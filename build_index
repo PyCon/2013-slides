@@ -3,7 +3,21 @@ import os
 import urllib
 from glob import glob
 
-base = os.path.join(os.path.dirname(__file__))
+MAGIC_HEADER = "<!-- generated -->"
+
+def build_dir_index(paths):
+    index_items = []
+    for filepath in paths:
+        filename = os.path.basename(filepath).decode("utf-8")
+        href = urllib.quote(filename)
+        title = filename.encode("ascii", "xmlcharrefreplace")
+        if os.path.isdir(filepath):
+            title += "/"
+        index_items.append("""
+            <li><a href="{href}">{title}</a></li>
+        """.format(href=href, title=title))
+    return index_items
+
 
 template = """
 <html>
@@ -30,18 +44,35 @@ template = """
 </body>
 """
 
-presentation_links = []
-for dirpath in glob(os.path.join(base, "*")):
-    if not os.path.isdir(dirpath):
-        continue
-    dirname = os.path.basename(dirpath).decode("utf-8")
-    href = urllib.quote(dirname) + "/"
-    title = dirname.encode("ascii", "xmlcharrefreplace")
-    presentation_links.append("""
-        <li><a href="{href}">{title}</a></li>
-    """.format(href=href, title=title))
+base = os.path.join(os.path.dirname(__file__))
 
+base_links = build_dir_index(glob(base + "/*"))
 with open(os.path.join(base, "index.html"), "w") as f:
     f.write(template.format(
-        presentation_links="".join(presentation_links),
+        presentation_links="".join(base_links),
     ))
+
+for dirpath, dirnames, filenames in os.walk(base):
+    if dirpath == base or "/." in dirpath:
+        continue
+    index_file = os.path.join(dirpath, "index.html")
+    if os.path.exists(index_file):
+        header = open(index_file).read(1024).strip()
+        if not header.startswith(MAGIC_HEADER):
+            continue
+    title = os.path.basename(dirpath).encode("ascii", "xmlcharrefreplace")
+    links = "".join(build_dir_index([
+        os.path.join(dirpath, x) for x in dirnames + filenames
+    ]))
+    with open(index_file, "w") as f:
+        f.write("""
+            {MAGIC_HEADER}
+            <html>
+                <head><title>{title}</title></head>
+            <body>
+                <ul>
+                    {links}
+                </ul>
+            </body>
+            </html>
+        """.format(MAGIC_HEADER=MAGIC_HEADER, title=title, links=links))
