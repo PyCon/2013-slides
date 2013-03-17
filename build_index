@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+import os
+import urllib
+from glob import glob
+
+base = os.path.join(os.path.dirname(__file__))
+
+template = """
+<html>
+    <head>
+        <title>PyCon 2013 Slides</title>
+    </head>
+<body>
+    
+    <h1>PyCon 2013 Slides</h1>
+
+    <p>
+        Most presentations can be found at: <a
+        href="https://speakerdeck.com/pyconslides/">https://speakerdeck.com/pyconslides/</a>.
+    </p>
+
+    <p>
+        This repository contains presentations which cannot be converted to
+        PDF, or the code from presentations which have some.
+    </p>
+
+    <ul>
+        {presentation_links}
+    </ul>
+</body>
+"""
+
+presentation_links = []
+for dirpath in glob(os.path.join(base, "*")):
+    if not os.path.isdir(dirpath):
+        continue
+    dirname = os.path.basename(dirpath).decode("utf-8")
+    href = urllib.quote(dirname) + "/"
+    title = dirname.encode("ascii", "xmlcharrefreplace")
+    presentation_links.append("""
+        <li><a href="{href}">{title}</a></li>
+    """.format(href=href, title=title))
+
+with open(os.path.join(base, "index.html"), "w") as f:
+    f.write(template.format(
+        presentation_links="".join(presentation_links),
+    ))
