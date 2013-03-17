@@ -1,0 +1,1061 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.9.1: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="css/slides2.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+</head>
+<body class="reading-mode">
+<div class="document">
+
+
+<div class="section" id="slide">
+
+<div class="line-block">
+<div class="line"><strong>The Naming of Ducks:</strong></div>
+<div class="line"><strong>Where Dynamic Types Meet</strong></div>
+<div class="line"><strong>Smart Conventions</strong></div>
+</div>
+<div class="line-block">
+<div class="line">&#64;brandon_rhodes</div>
+</div>
+<div class="line-block">
+<div class="line"><em>The Ides of March</em></div>
+<div class="line"><em>PyCon 2013</em></div>
+</div>
+</div>
+<div class="section" id="id1">
+
+<div class="line-block">
+<div class="line"><em>Pythonic</em></div>
+<div class="line">evolves</div>
+</div>
+</div>
+<div class="section" id="id2">
+
+<img alt="tweet.png" src="tweet.png" />
+</div>
+<div class="section" id="id3">
+
+<p>Background to that tweet:</p>
+</div>
+<div class="section" id="id4">
+
+<div class="line-block">
+<div class="line"><strong>PEP-8</strong> is where</div>
+<div class="line">the Python community</div>
+<div class="line">has enshrined its general</div>
+<div class="line">graphic-design habits</div>
+</div>
+</div>
+<div class="section" id="id5">
+
+<div class="line-block">
+<div class="line"><em>“Limit all lines to a maximum</em></div>
+<div class="line"><em>of 79 characters.”</em> — PEP-8</div>
+</div>
+</div>
+<div class="section" id="id6">
+
+<!-- What is this? Graphic design! -->
+</div>
+<div class="section" id="id7">
+
+<div class="line-block">
+<div class="line">“Anything from <strong>45 to 75 characters</strong> is</div>
+<div class="line">widely regarded as a satisfactory length</div>
+<div class="line">of line for a single-column page…</div>
+</div>
+<div class="line-block">
+<div class="line">The 66-character line</div>
+<div class="line">(counting both letters and spaces)</div>
+<div class="line">is <strong>widely regarded as ideal.”</strong></div>
+</div>
+<div class="line-block">
+<div class="line">— Robert Bringhurst in</div>
+<div class="line"><em>The Elements of Typographic Style</em></div>
+</div>
+</div>
+<div class="section" id="id8">
+
+<div class="line-block">
+<div class="line">PEP-8 might have been called</div>
+<div class="line"><em>The Elements of Pythonic Style</em></div>
+</div>
+</div>
+<div class="section" id="id9">
+
+<div class="line-block">
+<div class="line">So how do we create <em>beauty</em></div>
+<div class="line">within a <strong>finite</strong> page width?</div>
+</div>
+</div>
+<div class="section" id="id10">
+
+<p>What Carl and I <em>both</em> discovered:</p>
+</div>
+<div class="section" id="id11">
+
+<div class="highlight"><pre><span class="c"># Ugly</span>
+<span class="n">page</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">drawString</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">em</span><span class="p">,</span> <span class="n">y</span> <span class="o">*</span> <span class="n">lineheight</span><span class="p">,</span>
+                       <span class="n">message</span><span class="p">)</span>
+
+<span class="c"># Better</span>
+<span class="n">page</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">drawString</span><span class="p">(</span>
+    <span class="n">x</span> <span class="o">*</span> <span class="n">em</span><span class="p">,</span> <span class="n">y</span> <span class="o">*</span> <span class="n">lineheight</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+
+<span class="c"># Most general</span>
+<span class="n">page</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">drawString</span><span class="p">(</span>
+    <span class="n">x</span> <span class="o">*</span> <span class="n">em</span><span class="p">,</span>
+    <span class="n">y</span> <span class="o">*</span> <span class="n">lineheight</span><span class="p">,</span>
+    <span class="n">message</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+
+</div>
+<div class="section" id="id12">
+
+<p><strong>Q:</strong> Why the trailing comma?</p>
+<div class="highlight"><pre><span class="c"># Most general</span>
+<span class="n">page</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">drawString</span><span class="p">(</span>
+    <span class="n">x</span> <span class="o">*</span> <span class="n">em</span><span class="p">,</span>
+    <span class="n">y</span> <span class="o">*</span> <span class="n">lineheight</span><span class="p">,</span>
+    <span class="n">message</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+
+</div>
+<div class="section" id="id13">
+
+<div class="line-block">
+<div class="line"><strong>A:</strong> The <em>symmetry</em> is very friendly</div>
+<div class="line">to version control!</div>
+</div>
+</div>
+<div class="section" id="id14">
+
+<div class="highlight"><pre> <span class="n">page</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">drawString</span><span class="p">(</span>
+     <span class="n">x</span> <span class="o">*</span> <span class="n">em</span><span class="p">,</span>
+     <span class="n">y</span> <span class="o">*</span> <span class="n">lineheight</span><span class="p">,</span>
+<span class="o">-</span>    <span class="n">message</span>
+<span class="o">+</span>    <span class="n">message</span><span class="p">,</span>
+<span class="o">+</span>    <span class="n">font</span><span class="o">=</span><span class="s">&#39;Gentium&#39;</span>
+     <span class="p">)</span>
+
+ <span class="c"># vs</span>
+
+ <span class="n">page</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">drawString</span><span class="p">(</span>
+     <span class="n">x</span> <span class="o">*</span> <span class="n">em</span><span class="p">,</span>
+     <span class="n">y</span> <span class="o">*</span> <span class="n">lineheight</span><span class="p">,</span>
+     <span class="n">message</span><span class="p">,</span>
+<span class="o">+</span>    <span class="n">font</span><span class="o">=</span><span class="s">&#39;Gentium&#39;</span><span class="p">,</span>
+     <span class="p">)</span>
+</pre></div>
+
+</div>
+<div class="section" id="id15">
+
+<div class="line-block">
+<div class="line">Carl’s tweet has gotten me thinking</div>
+<div class="line">about how Python has been teaching</div>
+<div class="line"><strong>different</strong> people the <strong>same</strong> things</div>
+</div>
+</div>
+<div class="section" id="id16">
+
+<div class="line-block">
+<div class="line">See the video from my</div>
+<div class="line"><strong>PyCon Canada 2012</strong> talk,</div>
+</div>
+<div class="line-block">
+<div class="line"><em>A Python Æsthetic:</em></div>
+<div class="line"><em>Beauty and Why I Python</em></div>
+</div>
+</div>
+<div class="section" id="id17">
+
+<p>My most popular slide:</p>
+</div>
+<div class="section" id="id18">
+
+<div class="highlight"><pre><span class="n">canvas</span><span class="o">.</span><span class="n">drawString</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span>
+    <span class="s">&#39;Please press {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+
+<span class="c"># What if you introduce a name instead?</span>
+
+<span class="n">message</span> <span class="o">=</span> <span class="s">&#39;Please press {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">drawString</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+</pre></div>
+
+</div>
+<div class="section" id="id19">
+
+<div class="line-block">
+<div class="line">I adapted this from idea from XP</div>
+<div class="line">(Their goal: <strong>Destroy All Comments!</strong>)</div>
+</div>
+<div class="highlight"><pre><span class="n">widget</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>  <span class="c"># forces re-draw</span>
+</pre></div>
+
+<p>vs.</p>
+<div class="highlight"><pre><span class="n">force_redraw</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">widget</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">force_redraw</span><span class="p">)</span>
+</pre></div>
+
+</div>
+<div class="section" id="id20">
+
+<div class="line-block">
+<div class="line">So see my Canada talk</div>
+<div class="line">for more about how <strong>coding</strong></div>
+<div class="line">involves <strong>graphic design</strong></div>
+</div>
+</div>
+<div class="section" id="id21">
+
+<div class="highlight"><pre><span class="n">message</span> <span class="o">=</span> <span class="s">&#39;Please press {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">drawString</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+</pre></div>
+
+<div class="line-block">
+<div class="line">This maneuver got me thinking</div>
+<div class="line">more about <em>naming</em> in Python</div>
+</div>
+</div>
+<div class="section" id="id22">
+
+<div class="line-block">
+<div class="line"><em>“The naming of cats is</em></div>
+<div class="line"><em>&nbsp;a difficult matter”</em></div>
+<div class="line"><br /></div>
+<div class="line">— T. S. Eliot</div>
+</div>
+</div>
+<div class="section" id="id23">
+
+<div class="line-block">
+<div class="line">“The naming of <em>ducks</em> is</div>
+<div class="line">&nbsp;a difficult matter”</div>
+</div>
+</div>
+<div class="section" id="id24">
+
+<div class="line-block">
+<div class="line">Python does no type checks,</div>
+<div class="line">so code relies upon <strong>duck typing</strong></div>
+</div>
+</div>
+<div class="section" id="id25">
+
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">_1</span><span class="p">(</span><span class="n">_2</span><span class="p">,</span> <span class="n">_3</span><span class="p">):</span>
+    <span class="n">_4</span> <span class="o">=</span> <span class="n">_2</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_3</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_4</span><span class="o">.</span><span class="n">text</span>
+</pre></div>
+
+</div>
+<div class="section" id="id26">
+
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span>
+</pre></div>
+
+</div>
+<div class="section" id="id27">
+
+<div class="line-block">
+<div class="line"><em>Names</em> are how the Python</div>
+<div class="line">programmer signals <em>intent</em></div>
+</div>
+</div>
+<div class="section" id="id28">
+
+<div class="line-block">
+<div class="line">Names are our <em>lifeline</em></div>
+<div class="line">Names are <em>all we’ve got</em></div>
+</div>
+</div>
+<div class="section" id="id29">
+
+<div class="line-block">
+<div class="line">So if the internal logic</div>
+<div class="line">of the Python language has been</div>
+<div class="line">teaching us about <strong>graphic design—</strong></div>
+</div>
+<div class="line-block">
+<div class="line">—what might it have been</div>
+<div class="line">teaching us about <em>names?</em></div>
+</div>
+</div>
+<div class="section" id="id30">
+
+<ul class="simple">
+<li>Well-Factored <strong>Nouns</strong></li>
+<li>Relentless <strong>Verbs</strong></li>
+<li><strong>Sin</strong> of Synecdoche</li>
+<li>Problem of <strong>Pluralization</strong></li>
+</ul>
+</div>
+<div class="section" id="well-factored-nouns">
+<h1>Well-Factored Nouns</h1>
+</div>
+<div class="section" id="id31">
+
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;page&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s">&#39;the page to download&#39;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">download_page</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">page</span><span class="p">)</span>
+</pre></div>
+
+</div>
+<div class="section" id="id32">
+
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">download_page</span><span class="p">(</span><span class="n">page</span><span class="p">):</span>
+    <span class="err">?</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
+
+<span class="c"># Whoops</span>
+</pre></div>
+
+</div>
+<div class="section" id="id33">
+
+<div class="highlight"><pre><span class="c"># Instead:</span>
+
+<span class="k">def</span> <span class="nf">download_page</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="n">page</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">process_page</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
+</pre></div>
+
+</div>
+<div class="section" id="id34">
+
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">process_page</span><span class="p">(</span><span class="n">page</span><span class="p">):</span>
+    <span class="err">?</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">text</span>
+
+<span class="c"># Whoops</span>
+</pre></div>
+
+</div>
+<div class="section" id="id35">
+
+<div class="highlight"><pre><span class="c"># Instead:</span>
+
+<span class="k">def</span> <span class="nf">process_page</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+    <span class="n">page</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span>
+    <span class="o">...</span>
+</pre></div>
+
+</div>
+<div class="section" id="id36">
+
+<p><strong>Q:</strong> What have I done?</p>
+</div>
+<div class="section" id="id37">
+
+<p><strong>A:</strong> I have failed to refactor!</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="o">...</span> <span class="n">download_page</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">page</span><span class="p">)</span> <span class="o">...</span>
+
+<span class="k">def</span> <span class="nf">download_page</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+<span class="o">...</span> <span class="n">process_page</span><span class="p">(</span><span class="n">page</span><span class="p">)</span> <span class="o">...</span>
+
+<span class="k">def</span> <span class="nf">process_page</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+<span class="o">...</span> <span class="n">page</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span> <span class="o">...</span>
+</pre></div>
+
+</div>
+<div class="section" id="id38">
+
+<div class="line-block">
+<div class="line">Each <em>discovery</em> should be pushed</div>
+<div class="line">back into all previous code</div>
+</div>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="o">...</span> <span class="n">download_page</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">url</span><span class="p">)</span> <span class="o">...</span>
+
+<span class="k">def</span> <span class="nf">download_page</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+<span class="o">...</span> <span class="n">process_page</span><span class="p">(</span><span class="n">response</span><span class="p">)</span> <span class="o">...</span>
+
+<span class="k">def</span> <span class="nf">process_page</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+<span class="o">...</span> <span class="n">page</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span> <span class="o">...</span>
+</pre></div>
+
+</div>
+<div class="section" id="id39">
+
+<div class="line-block">
+<div class="line">Learning that a name was imprecise</div>
+<div class="line">is <em>knowledge</em> and that knowledge</div>
+<div class="line">should be available <em>everywhere</em></div>
+</div>
+</div>
+<div class="section" id="aside">
+<h1>Aside:</h1>
+<div class="line-block">
+<div class="line">They say Python can <em>never work</em></div>
+<div class="line">because it lacks <strong>type checking</strong></div>
+</div>
+<!-- Drat, will not have room for rant about loose type systems ruining
+the reputation of dynamic languages. -->
+</div>
+<div class="section" id="id40">
+
+<div class="line-block">
+<div class="line">Does this code provide <em>any</em> sanity check</div>
+<div class="line">of <strong>argument</strong> vs <strong>parameter</strong> types?</div>
+</div>
+<div class="highlight"><pre>    <span class="err">⋮</span>
+    <span class="n">process_page</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
+    <span class="err">⋮</span>
+
+<span class="k">def</span> <span class="nf">process_page</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+    <span class="n">page</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span>
+    <span class="err">⋮</span>
+</pre></div>
+
+</div>
+<div class="section" id="id41">
+
+<div class="line-block">
+<div class="line">If you <em>consistently refactor</em> names</div>
+<div class="line">you get a kind of rudimentary</div>
+<div class="line"><strong>type checking</strong> for free!</div>
+</div>
+<div class="highlight"><pre>    <span class="err">⋮</span>
+    <span class="n">process_page</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+    <span class="err">⋮</span>
+
+<span class="k">def</span> <span class="nf">process_page</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+    <span class="n">page</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span>
+    <span class="err">⋮</span>
+</pre></div>
+
+</div>
+<div class="section" id="id42">
+<h1>Well-Factored Nouns</h1>
+<div class="line-block">
+<div class="line"><strong>Advice:</strong> you should <em>exuberantly</em></div>
+<div class="line"><em>refactor</em> by pushing name changes</div>
+<div class="line">back into <em>all</em> your previous code</div>
+</div>
+</div>
+<div class="section" id="relentless-verbs">
+<h1>Relentless Verbs</h1>
+</div>
+<div class="section" id="id43">
+
+<div class="line-block">
+<div class="line"><em>Guideline:</em></div>
+</div>
+<div class="line-block">
+<div class="line">For stuff that does</div>
+<div class="line">something, use a <strong>verb</strong></div>
+</div>
+<div class="line-block">
+<div class="line"><em>Explicit is better than implicit</em></div>
+</div>
+</div>
+<div class="section" id="id44">
+
+<div class="line-block">
+<div class="line">Plain old <strong>functions</strong> should</div>
+<div class="line">in almost all cases be verbs</div>
+</div>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">database</span><span class="p">():</span>
+    <span class="s">&#39;Not at all clear what this does.&#39;</span>
+    <span class="s">&#39;And, it steals a good variable name!&#39;</span>
+
+<span class="k">def</span> <span class="nf">create_database</span><span class="p">():</span>
+    <span class="s">&#39;Much clearer; code will read smoothly.&#39;</span>
+</pre></div>
+
+</div>
+<div class="section" id="id45">
+
+<div class="line-block">
+<div class="line"><em>Exception:</em></div>
+</div>
+<div class="line-block">
+<div class="line">Methods are often perfectly easy</div>
+<div class="line">to understand without verbs;</div>
+<div class="line">the <strong>parens</strong> help!</div>
+</div>
+<div class="highlight"><pre><span class="c"># Pretty clear despite brevity</span>
+<span class="n">document</span><span class="o">.</span><span class="n">md5</span><span class="p">()</span>
+</pre></div>
+
+</div>
+<div class="section" id="id46">
+
+<ul class="simple">
+<li><tt class="docutils literal">document.md5()</tt> is <em>clearly</em> <tt class="docutils literal">noun.verb()</tt></li>
+<li><tt class="docutils literal">md5()</tt> sits in its own namespace</li>
+</ul>
+<div class="highlight"><pre><span class="c"># No conflict with local variable `md5`</span>
+<span class="n">md5</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">md5</span><span class="p">()</span>
+</pre></div>
+
+</div>
+<div class="section" id="id47">
+
+<div class="line-block">
+<div class="line">Namespaces are</div>
+<div class="line"><strong>one honking great idea</strong></div>
+<div class="line">—</div>
+<div class="line"><em>let’s do more of those!</em></div>
+</div>
+</div>
+<div class="section" id="id48">
+
+<div class="line-block">
+<div class="line"><em>Exception:</em></div>
+</div>
+<div class="line-block">
+<div class="line">In an object oriented language,</div>
+<div class="line">the word <em>new</em> is itself a verb</div>
+</div>
+<div class="highlight"><pre><span class="c"># A bit silly and redundant</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">create_new_obj</span><span class="p">()</span>
+
+<span class="c"># Because this is just fine</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">new_obj</span><span class="p">()</span>
+</pre></div>
+
+</div>
+<div class="section" id="id49">
+
+<div class="line-block">
+<div class="line"><em>Exception:</em></div>
+</div>
+<div class="line-block">
+<div class="line">Verbs can be too verbose for routines</div>
+<div class="line">that are <em>math-like</em> and will be combined</div>
+<div class="line">frequently to make larger <strong>expressions</strong></div>
+</div>
+<div class="highlight"><pre><span class="c"># Would you rather type this?</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">compute_length</span><span class="p">(</span><span class="n">compute_center</span><span class="p">(</span><span class="n">boston</span><span class="p">)</span> <span class="o">-</span>
+                   <span class="n">compute_top</span><span class="p">(</span><span class="n">mt_adams</span><span class="p">))</span>
+
+<span class="c"># Or this?</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">center</span><span class="p">(</span><span class="n">boston</span><span class="p">)</span> <span class="o">-</span> <span class="n">top</span><span class="p">(</span><span class="n">mt_adams</span><span class="p">))</span>
+</pre></div>
+
+</div>
+<div class="section" id="id50">
+<h1>Relentless Verbs</h1>
+<div class="line-block">
+<div class="line"><strong>Function names</strong> should include a</div>
+<div class="line"><em>verb</em> instead of simply naming</div>
+<div class="line">what they build or generate</div>
+</div>
+</div>
+<div class="section" id="sin-of-synecdoche">
+<h1>Sin of Synecdoche</h1>
+</div>
+<div class="section" id="id51">
+
+<div class="line-block">
+<div class="line">In Lewis Carroll’s book</div>
+<div class="line"><em>Through the Looking-Glass,</em> Alice</div>
+<div class="line">meets a Knight who offers to sing</div>
+</div>
+</div>
+<div class="section" id="id52">
+
+<div class="line-block">
+<div class="line">“The name of the song is</div>
+<div class="line">called <strong>‘Haddocks’ Eyes.’”</strong></div>
+</div>
+<p><em>~</em></p>
+<div class="line-block">
+<div class="line">“Oh, that’s the name of the song, is it?”</div>
+<div class="line">Alice said, trying to feel interested.</div>
+</div>
+</div>
+<div class="section" id="id53">
+
+<div class="line-block">
+<div class="line">“No, you don’t understand,”</div>
+<div class="line">the Knight said, looking a little vexed.</div>
+<div class="line">“That’s what the name is <em>called</em>. The name</div>
+<div class="line">really <em>is</em> <strong>‘The Aged Aged Man.’”</strong></div>
+</div>
+<p><em>~</em></p>
+<div class="line-block">
+<div class="line">“Then I ought to have said,</div>
+<div class="line">‘That’s what the song is called’?”</div>
+<div class="line">Alice corrected herself.</div>
+</div>
+</div>
+<div class="section" id="id54">
+
+<div class="line-block">
+<div class="line">“No, you oughtn’t: that’s another thing.</div>
+<div class="line">The song is <em>called</em> <strong>‘Ways and Means’:</strong></div>
+<div class="line">but that’s only what it’s <em>called,</em></div>
+<div class="line">you know!”</div>
+</div>
+<p><em>~</em></p>
+<div class="line-block">
+<div class="line">“Well, what <em>is</em> the song, then?” said Alice,</div>
+<div class="line">who was by this time completely bewildered.</div>
+</div>
+</div>
+<div class="section" id="id55">
+
+<div class="line-block">
+<div class="line">“I was coming to that,” the Knight said.</div>
+<div class="line">&quot;The song really <em>is</em> <strong>‘A sitting on a Gate’:</strong></div>
+<div class="line">and the tune’s my own invention.”</div>
+</div>
+</div>
+<div class="section" id="id56">
+
+<p><strong>Lie</strong></p>
+</div>
+<div class="section" id="id57">
+
+<p>The tune was a well-known one</p>
+</div>
+<div class="section" id="id58">
+
+<div class="line-block">
+<div class="line">But the Knight’s attitude</div>
+<div class="line">toward <em>naming</em> should be very</div>
+<div class="line">familiar to programmers!</div>
+</div>
+<!-- url = ('http://www.bobdylan.com/us/songs/'
+       'all-along-watchtower')
+content = requests.get(url).text
+
+# What the name of the song is called: 'url'
+# Name of the song: 'http://...'
+# What the song is called: 'content'
+# The song: 'There must be...' -->
+</div>
+<div class="section" id="id59">
+
+<div class="highlight"><pre><span class="n">url</span> <span class="o">=</span> <span class="s">&#39;http://lyrics.com/a-sitting-on-a-gate&#39;</span>
+<span class="n">song</span> <span class="o">=</span> <span class="s">&#39;A sitting on a Gate...&#39;</span>
+</pre></div>
+
+<div class="line-block">
+<div class="line">name-is-called = ‘name’</div>
+<div class="line">song-is-called = ‘song’</div>
+</div>
+</div>
+<div class="section" id="id60">
+
+</div>
+<div class="section" id="id61">
+<h1>Sin of Synecdoche</h1>
+<div class="line-block">
+<div class="line">Very often occurs because we</div>
+<div class="line">confuse a <em>name</em> with its <em>referent</em></div>
+</div>
+</div>
+<div class="section" id="id62">
+<h1>Sin of Synecdoche</h1>
+<div class="highlight"><pre><span class="n">song</span> <span class="o">=</span> <span class="s">&#39;http://lyrics.com/a-sitting-on-a-gate&#39;</span>
+<span class="n">document</span> <span class="o">=</span> <span class="s">&#39;/home/brandon/2013-03-pycon.rst&#39;</span>
+</pre></div>
+
+</div>
+<div class="section" id="cure">
+<h1>Cure</h1>
+<p><em>Always name the part</em></p>
+<div class="highlight"><pre><span class="n">song_url</span> <span class="o">=</span> <span class="s">&#39;http://lyrics.com/sitting-on-a-gate&#39;</span>
+<span class="n">song_text</span> <span class="o">=</span> <span class="s">&#39;A sitting on a gate&#39;</span>
+
+<span class="c"># or</span>
+
+<span class="n">url</span> <span class="o">=</span> <span class="s">&#39;http://lyrics.com/sitting-on-a-gate&#39;</span>
+<span class="n">text</span> <span class="o">=</span> <span class="s">&#39;A sitting on a gate&#39;</span>
+</pre></div>
+
+</div>
+<div class="section" id="id63">
+
+<div class="line-block">
+<div class="line"><em>Feel free</em> to allow the</div>
+<div class="line">context to <strong>absolve</strong> you of</div>
+<div class="line">the need to name the <em>whole</em></div>
+</div>
+</div>
+<div class="section" id="pep-8">
+<h1>PEP-8</h1>
+<div class="line-block">
+<div class="line">“The X11 library uses</div>
+<div class="line">a <strong>leading X</strong> for all its public</div>
+<div class="line">functions. In Python, this style is</div>
+<div class="line">generally deemed <strong>unnecessary</strong>”</div>
+</div>
+</div>
+<div class="section" id="id64">
+
+<div class="line-block">
+<div class="line">A surrounding <em>module</em> or <em>class</em> namespace</div>
+<div class="line">can be responsible for naming the <strong>whole</strong></div>
+</div>
+<div class="highlight"><pre><span class="c"># In medialib.py:</span>
+<span class="k">def</span> <span class="nf">fetch_songs</span><span class="p">(</span><span class="n">urls</span><span class="p">):</span>
+    <span class="o">...</span>
+
+<span class="c"># In songlib.py:</span>
+<span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="n">urls</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+
+</div>
+<div class="section" id="id65">
+
+<div class="line-block">
+<div class="line">But in both cases, <em>please</em> call the</div>
+<div class="line">parameter <strong>urls</strong> so I can read your code!</div>
+</div>
+<div class="highlight"><pre><span class="c"># In medialib.py:</span>
+<span class="k">def</span> <span class="nf">fetch_songs</span><span class="p">(</span><span class="n">urls</span><span class="p">):</span>
+    <span class="o">...</span>
+
+<span class="c"># In songlib.py:</span>
+<span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="n">urls</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+
+</div>
+<div class="section" id="id66">
+
+<div class="line-block">
+<div class="line">The <tt class="docutils literal">logging</tt> module</div>
+<div class="line">both gets this right:</div>
+</div>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Logger</span>
+<span class="k">class</span> <span class="nc">Handler</span>
+<span class="k">class</span> <span class="nc">Filter</span>
+</pre></div>
+
+</div>
+<div class="section" id="id67">
+
+<div class="line-block">
+<div class="line"><em>and</em> gets it wrong:</div>
+</div>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">LogRecord</span>
+</pre></div>
+
+</div>
+<div class="section" id="id68">
+
+<div class="line-block">
+<div class="line">Short unqualified names are <em>wonderful</em></div>
+<div class="line">because they leave the <em>caller</em> in charge</div>
+<div class="line">of whether to qualify them or not.</div>
+</div>
+</div>
+<div class="section" id="id69">
+
+<div class="highlight"><pre><span class="c"># The caller has their choice:</span>
+
+<span class="kn">from</span> <span class="nn">songlib</span> <span class="kn">import</span> <span class="n">fetch</span>
+<span class="n">fetch</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="c"># or:</span>
+
+<span class="kn">import</span> <span class="nn">songlib</span>
+<span class="n">songlib</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+
+</div>
+<div class="section" id="i-sum-up">
+<h1>I sum up</h1>
+<div class="line-block">
+<div class="line">Avoid the <em>sin of synecdoche!</em></div>
+<div class="line">Be explicit about <strong>wholes</strong> and <strong>parts</strong></div>
+</div>
+<div class="line-block">
+<div class="line"><em>But</em> feel free to split a <strong>whole-and-part</strong></div>
+<div class="line">between the <em>namespace</em> and the <em>name</em></div>
+</div>
+</div>
+<div class="section" id="id70">
+<h1>Aside:</h1>
+<div class="line-block">
+<div class="line"><strong>Good</strong> Python programming is often</div>
+<div class="line">about doing what you <em>ought</em></div>
+<div class="line">rather than what you <em>can</em></div>
+</div>
+</div>
+<div class="section" id="id71">
+
+<p>You <em>can</em> do this, but you <em>oughtn’t</em></p>
+<div class="highlight"><pre><span class="c"># foo.py</span>
+<span class="k">def</span> <span class="nf">go</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+
+<span class="c"># program.py</span>
+<span class="kn">import</span> <span class="nn">foo</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">foo</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">foo</span><span class="o">.</span><span class="n">go</span><span class="p">()</span>
+</pre></div>
+
+</div>
+<div class="section" id="id72">
+
+<div class="line-block">
+<div class="line">Writing good Python is a</div>
+<div class="line">long exercise in <strong>propriety</strong></div>
+</div>
+</div>
+<div class="section" id="id73">
+<h1>Sin of Synecdoche</h1>
+<div class="line-block">
+<div class="line">Make names as <em>specific</em> as possible by</div>
+<div class="line">naming <strong>parts</strong> in preference to <strong>wholes</strong></div>
+</div>
+</div>
+<div class="section" id="id74">
+
+</div>
+<div class="section" id="problem-of-pluralization">
+<h1>Problem of Pluralization</h1>
+</div>
+<div class="section" id="id75">
+
+<div class="line-block">
+<div class="line">What is the</div>
+<div class="line"><strong>“problem of pluralization?”</strong></div>
+</div>
+</div>
+<div class="section" id="id76">
+
+<div class="line-block">
+<div class="line">Is it the fact that <em>someone’s</em> popular</div>
+<div class="line">library took away a plural noun you</div>
+<div class="line">could <strong>otherwise</strong> have used?</div>
+</div>
+</div>
+<div class="section" id="id77">
+
+<div class="highlight"><pre><span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span> <span class="o">...</span>
+<span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">:</span> <span class="o">...</span>
+
+<span class="k">for</span> <span class="n">request</span> <span class="ow">in</span> <span class="n">AAAAAARGH</span><span class="err">—</span>
+</pre></div>
+
+</div>
+<div class="section" id="no">
+<h1>No</h1>
+<div class="line-block">
+<div class="line">That is <em>not</em> the</div>
+<div class="line"><strong>“problem of pluralization”</strong></div>
+</div>
+</div>
+<div class="section" id="id78">
+
+<p>The <em>problem</em> has three prongs</p>
+</div>
+<div class="section" id="id79">
+<h1>1.</h1>
+<div class="line-block">
+<div class="line">Python offers <em>many</em> data structures;</div>
+<div class="line">which one lies behind a given plural?</div>
+</div>
+<div class="highlight"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">connections</span>
+<span class="p">[</span><span class="o">&lt;</span><span class="n">SQLConnection</span> <span class="n">at</span> <span class="mh">0xb72ff4d8</span><span class="o">&gt;</span><span class="p">,</span>
+ <span class="o">&lt;</span><span class="n">SQLConnection</span> <span class="n">at</span> <span class="mh">0xb72ff4d0</span><span class="o">&gt;</span><span class="p">,</span>
+ <span class="o">&lt;</span><span class="n">SQLConnection</span> <span class="n">at</span> <span class="mh">0xb72ff4f0</span><span class="o">&gt;</span><span class="p">]</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">connections</span>
+<span class="p">{</span><span class="s">&#39;master&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">SQLConnection</span> <span class="n">at</span> <span class="mh">0xb72ff4d8</span><span class="o">&gt;</span><span class="p">,</span>
+ <span class="s">&#39;backup&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">SQLConnection</span> <span class="n">at</span> <span class="mh">0xb72ff4f0</span><span class="o">&gt;</span><span class="p">}</span>
+</pre></div>
+
+</div>
+<div class="section" id="id80">
+<h1>2.</h1>
+<p>Plurals are not always unique in English</p>
+<div class="highlight"><pre><span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxes</span><span class="p">:</span> <span class="o">...</span>
+<span class="k">for</span> <span class="n">foot</span> <span class="ow">in</span> <span class="n">feet</span><span class="p">:</span> <span class="o">...</span>
+<span class="k">for</span> <span class="n">brother</span> <span class="ow">in</span> <span class="n">brethren</span><span class="p">:</span> <span class="o">...</span>
+
+<span class="k">for</span> <span class="n">species</span> <span class="ow">in</span> <span class="n">AAAAAARGH</span><span class="err">—</span>
+</pre></div>
+
+</div>
+<div class="section" id="id81">
+<h1>3.</h1>
+<div class="line-block">
+<div class="line">The plural is <em>also</em> used for <strong>counting</strong></div>
+</div>
+<div class="highlight"><pre><span class="c"># Ugly:</span>
+<span class="n">numconnections</span> <span class="o">=</span> <span class="mi">8</span>
+
+<span class="c"># These must be too much typing:</span>
+<span class="n">connection_count</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">number_of_connections</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">total_connections</span> <span class="o">=</span> <span class="mi">8</span>
+
+<span class="c"># Because we are all tempted to:</span>
+<span class="n">connections</span> <span class="o">=</span> <span class="mi">8</span>
+</pre></div>
+
+</div>
+<div class="section" id="id82">
+
+<div class="line-block">
+<div class="line">The Python Community has</div>
+<div class="line">its own <strong>Anti-Plural Party</strong></div>
+</div>
+</div>
+<div class="section" id="id83">
+
+<img alt="tweet2.png" src="tweet2.png" />
+</div>
+<div class="section" id="anti-plural-party">
+<h1>Anti-Plural Party</h1>
+<div class="highlight"><pre><span class="c"># You built it, know its type:</span>
+
+<span class="n">connection_set</span>
+<span class="n">connection_list</span>
+<span class="n">connection_dict</span>
+<span class="n">connection_deque</span>
+
+<span class="c"># You only care about its interface:</span>
+
+<span class="k">def</span> <span class="nf">close_all</span><span class="p">(</span><span class="n">connection_seq</span><span class="p">):</span>
+    <span class="o">...</span>
+<span class="k">def</span> <span class="nf">reset_all</span><span class="p">(</span><span class="n">connection_map</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+
+</div>
+<div class="section" id="id84">
+
+<div class="line-block">
+<div class="line">The <strong>Anti-Plural Party</strong> have a</div>
+<div class="line">quite <em>distinguished</em> lineage:</div>
+</div>
+</div>
+<div class="section" id="id85">
+
+<div class="line-block">
+<div class="line">The <strong>relational database</strong> best-practice</div>
+<div class="line">is to give tables <em>singular</em> names</div>
+<div class="line">instead of <em>plural</em> names</div>
+</div>
+</div>
+<div class="section" id="id86">
+
+<div class="line-block">
+<div class="line">Modern <strong>scientific Python</strong> code</div>
+<div class="line">almost looks <em>magic</em> because it uses</div>
+<div class="line"><strong>singulars</strong> for what are really <strong>arrays</strong></div>
+</div>
+<div class="highlight"><pre><span class="n">x</span> <span class="o">=</span> <span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">))</span>
+
+<span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+</pre></div>
+
+</div>
+<div class="section" id="id87">
+
+<div class="line-block">
+<div class="line"><strong>Plural Alternatives</strong></div>
+<div class="line">sometimes <em>cannot</em> be avoided!</div>
+</div>
+<div class="line-block">
+<div class="line">Since some words <em>have</em> no plural,</div>
+<div class="line">you might find yourself <strong>forced</strong> to use</div>
+<div class="line">one of these techniques someday!</div>
+</div>
+</div>
+<div class="section" id="dictionary-like-objects">
+<h1>Dictionary-like Objects</h1>
+<div class="highlight"><pre><span class="c"># I have tried these and more:</span>
+<span class="n">connection_dict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">connection_by_url</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">url_to_connection</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="c"># Current favorite:</span>
+<span class="n">connection_map</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="c"># But sometimes I *still* say:</span>
+<span class="n">connections</span> <span class="o">=</span> <span class="p">{}</span>
+</pre></div>
+
+</div>
+<div class="section" id="id88">
+
+<div class="highlight"><pre><span class="c"># AAAAAARGH MY EYES</span>
+
+<span class="n">url2connection</span> <span class="o">=</span> <span class="p">{}</span>
+</pre></div>
+
+</div>
+<div class="section" id="id89">
+<h1>Problem of Pluralization</h1>
+<div class="line-block">
+<div class="line">Python pluralization is still the wild west,</div>
+<div class="line">and I have not settled on a single doctrine</div>
+</div>
+</div>
+<div class="section" id="two-naming-tidbits">
+<h1>Two naming tidbits</h1>
+</div>
+<div class="section" id="always-default-to-safety">
+<h1>1. Always default to safety</h1>
+<div class="highlight"><pre><span class="c"># Never EVER design an API this way:</span>
+<span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+<span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">()</span>
+
+<span class="c"># Instead:</span>
+<span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+<span class="n">yaml</span><span class="o">.</span><span class="n">dangerous_load</span><span class="p">()</span>
+</pre></div>
+
+<p><em>Ned Batchelder, “War is Peace”</em></p>
+</div>
+<div class="section" id="use-the-singular-to-document-key-value">
+<h1>2. Use the singular to document key/value</h1>
+<div class="highlight"><pre><span class="c"># Does this mean that each name maps to</span>
+<span class="c"># ONE vector, or a LIST of vectors?</span>
+
+<span class="n">vector_map</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c"># scientific names -&gt; vectors</span>
+
+<span class="c"># So use the singular, which is clear:</span>
+
+<span class="n">vector_map</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c"># scientific name -&gt; vector</span>
+</pre></div>
+
+</div>
+<div class="section" id="id90">
+
+</div>
+<div class="section" id="thank-you-very-much">
+<h1>Thank you very much!</h1>
+<p>&#64;brandon_rhodes</p>
+</div>
+<div class="section" id="id91">
+
+<!-- single quote: ’
+double quotes: x“”x
+em-dash: —
+vertical ellipsis: ⋮
+arrows: ←, ↑, →, ↓, ↔, ↕, ↖, ↗, ↘, ↙ -->
+<script>
+  window.slide_transition_time = 200;
+</script>
+<script src="/js/jquery-1.6.2.min.js"></script>
+<script src="/js/jquery.url.min.js"></script>
+<script src="/js/slides2.js"></script></div>
+</div>
+</body>
+</html>
