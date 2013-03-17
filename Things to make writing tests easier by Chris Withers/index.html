@@ -1,0 +1,665 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><title></title><meta name="generator" content="Hovercraft! 1.0 http://regebro.github.com/hovercraft"></meta><link rel="stylesheet" href="css/hovercraft.css" media="all"></link><link rel="stylesheet" href="css/impressConsole.css" media="all"></link><link rel="stylesheet" href="css/highlight.css" media="all"></link><link rel="stylesheet" href="presentation.css" media="screen,projection"></link></head><body class="impress-not-supported"><div id="impress" data-transition-duration="150"><div class="step slide" step="0" id="title" data-x="0" data-y="0"><h1 id="things-to-make-writing-tests-easier">Things to make writing tests easier</h1><p>Chris Withers</p></div><div class="step slide" step="1" data-x="1600" data-y="0"><h1 id="something-to-test">Something to test</h1><p class="block-quote sp100">"Here's some data in a CSV..."</p><table cellpadding="0" cellspacing="0" class="my-table-class"><thead><tr><th><p>Name</p></th><th><p>Money Owed</p></th></tr></thead><tbody><tr><td><p>Adam Alpha</p></td><td><p>100</p></td></tr><tr><td><p>Brian Beta</p></td><td><p>300</p></td></tr><tr><td><p>C&#xE9;dric Cee</p></td><td><p>200</p></td></tr></tbody></table><p class="block-quote right">"...parse it and tell me who owes the most money!"</p></div><div class="step pop" step="2" id="sample1" data-x="3200" data-y="0"><pre class="highlight code python"><span class="k">def</span> <span class="nf">most_owed</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="c"># read csv</span>
+    <span class="c"># return most maximum</span>
+    <span class="c"># log how long it took</span>
+    <span class="k">pass</span></pre><div class="notes"><p>here's the spec for the function</p></div></div><div class="step pop" step="3" id="test1" data-x="3200" data-y="0"><pre class="highlight code python"><span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
+
+<span class="k">class</span> <span class="nc">Tests</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">test_one</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">most_owed</span><span class="p">(</span><span class="s">'foo'</span><span class="p">)</span></pre></div><div class="step pop" step="4" id="test2" data-x="4800" data-y="0"><pre class="highlight code python"><span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
+
+<span class="k">class</span> <span class="nc">Tests</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">test_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">source</span><span class="p">:</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="s">'''</span><span class="se">\
+</span><span class="s">Name,Money Owed
+Adam Alpha,100
+'''</span><span class="p">)</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">most_owed</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="s">'Adam Alpha'</span><span class="p">)</span></pre><div class="notes"><p>test round one, we DON'T use csv writer:</p><ul><li>too symmetrical</li><li>doesn't let us test malformed csv</li><li>what about line endings? bytes vs strings?</li></ul></div></div><div class="step pop" step="5" id="sample2" data-x="4800" data-y="0"><pre class="highlight code python"><span class="kn">import</span> <span class="nn">csv</span>
+
+<span class="k">def</span> <span class="nf">most_owed</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">row</span><span class="p">[</span><span class="s">'Name'</span><span class="p">]</span></pre><div class="notes"><p>obvious problem!
+...so lets round out with some more tests</p></div></div><div class="step pop" step="6" data-x="6400" data-y="0"><pre class="highlight code python">    <span class="k">def</span> <span class="nf">test_max</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">source</span><span class="p">:</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="s">'''</span><span class="se">\
+</span><span class="s">Name,Money Owed
+Adam Alpha,100
+Brian Beta, 300
+'''</span><span class="p">)</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">most_owed</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="s">'Brian Beta'</span><span class="p">)</span></pre></div><div class="step pop" step="7" data-x="6400" data-y="300"><pre class="highlight code python">    <span class="k">def</span> <span class="nf">test_unicode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">source</span><span class="p">:</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="s">'''</span><span class="se">\
+</span><span class="s">Name,Money Owed
+C</span><span class="se">\xe9</span><span class="s">dric Cee,200
+'''</span><span class="p">,</span> <span class="s">'utf8'</span><span class="p">))</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">most_owed</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="s">'C</span><span class="se">\xe9</span><span class="s">dric Cee'</span><span class="p">)</span></pre><div class="notes"><p>Test doesn't work on Windows (re-open tempfile!)</p></div></div><div class="step pop" step="8" data-x="6400" data-y="600"><pre class="highlight code python">    <span class="k">def</span> <span class="nf">test_whitespace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># data</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">source</span><span class="p">:</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="s">'''</span><span class="se">\
+</span><span class="s">Name,Money Owed
+ Adam Alpha,</span><span class="se">\t</span><span class="s">100
+'''</span><span class="p">)</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">most_owed</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="s">'Adam Alpha'</span><span class="p">)</span>
+        <span class="c"># what about column headings?</span></pre><div class="notes"><p>what if we had to process a dir of files to get the answer?</p></div></div><div class="step" step="9" id="sample3" data-x="6850" data-y="300" data-z="800"><pre class="highlight code python"><span class="kn">import</span> <span class="nn">csv</span>
+
+<span class="k">def</span> <span class="nf">most_owed</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="n">owed</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+
+            <span class="c"># what if this blows up?</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s">'Money Owed'</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="n">current</span> <span class="o">&gt;</span> <span class="n">owed</span><span class="p">:</span>
+                <span class="n">owed</span> <span class="o">=</span> <span class="n">current</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s">'Name'</span><span class="p">]</span>
+
+        <span class="c"># how long did it take?</span>
+        <span class="k">return</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></pre><div class="notes"><p>here's the code</p><ul><li>what if we one saw zeros or negative numbers</li><li>what about whitespace in headers?</li><li>line coverage is only a start!</li></ul></div></div><div class="step pop" step="10" data-x="8750" data-y="0" data-z="0"><pre class="highlight code python">    <span class="k">def</span> <span class="nf">test_invalid_numbers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">source</span><span class="p">:</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="s">'''</span><span class="se">\
+</span><span class="s">Name,Money Owed
+Adam Alpha,X
+Brian Beta, 300
+'''</span><span class="p">)</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">most_owed</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="s">'Brian Beta'</span><span class="p">)</span></pre></div><div class="step pop" step="11" data-x="8750" data-y="350"><pre class="highlight code python">    <span class="k">def</span> <span class="nf">test_malformed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># should we raise our own exception?</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">source</span><span class="p">:</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="s">'''</span><span class="se">\
+</span><span class="s">Name,
+Adam Alpha
+'''</span><span class="p">)</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">most_owed</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s">"'Money Owed'"</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="s">'no exception raised'</span><span class="p">)</span></pre></div><div class="step" step="12" id="sample4" data-x="9150" data-y="200" data-z="650"><pre class="highlight code python"><span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">csv</span><span class="o">,</span> <span class="nn">logging</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">most_owed</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="n">started</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">owed</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s">'Money Owed'</span><span class="p">]</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">current</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s">'ignoring </span><span class="si">%r</span><span class="s"> as not valid'</span><span class="p">,</span>
+                    <span class="n">value</span>
+                    <span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">current</span> <span class="o">&gt;</span> <span class="n">owed</span><span class="p">:</span>
+                <span class="n">owed</span> <span class="o">=</span> <span class="n">current</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s">'Name'</span><span class="p">]</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">'Processing took </span><span class="si">%s</span><span class="s">'</span><span class="p">,</span>
+             <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">started</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></pre><div class="notes"><p>what's still untested?</p><ul><li>logging</li><li>what do the exceptions look like?</li></ul></div></div><div class="step" step="13" data-x="10950" data-y="200" data-z="0"><div class="box"><p class="header">running the tests is now messy...</p><pre class="highlight ">$ bin/python -m unittest discover
+ignoring 'X' as not valid
+......
+-----------------------------------------------------
+Ran 6 tests in 0.006s
+
+OK</pre></div></div><div class="step" step="14" id="test5" data-x="12950" data-y="200"><pre class="highlight code python"><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
+
+<span class="k">class</span> <span class="nc">Tests</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">source</span><span class="p">:</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="s">'''</span><span class="se">\
+</span><span class="s">Name,Money Owed
+Adam Alpha,100
+'''</span><span class="p">)</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">most_owed</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="s">'Adam Alpha'</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_max</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">source</span><span class="p">:</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="s">'''</span><span class="se">\
+</span><span class="s">Name,Money Owed
+Adam Alpha,100
+Brian Beta, 300
+'''</span><span class="p">)</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">most_owed</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="s">'Brian Beta'</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_unicode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">source</span><span class="p">:</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="s">'''</span><span class="se">\
+</span><span class="s">Name,Money Owed
+C</span><span class="se">\xe9</span><span class="s">dric Cee,200
+'''</span><span class="p">,</span> <span class="s">'utf8'</span><span class="p">))</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">most_owed</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="s">'C</span><span class="se">\xe9</span><span class="s">dric Cee'</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_whitespace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># data</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">source</span><span class="p">:</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="s">'''</span><span class="se">\
+</span><span class="s">Name,Money Owed
+ Adam Alpha,</span><span class="se">\t</span><span class="s">100
+'''</span><span class="p">)</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">most_owed</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="s">'Adam Alpha'</span><span class="p">)</span>
+        <span class="c"># what about column headings?</span>
+
+    <span class="k">def</span> <span class="nf">test_invalid_numbers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">source</span><span class="p">:</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="s">'''</span><span class="se">\
+</span><span class="s">Name,Money Owed
+Adam Alpha,X
+Brian Beta, 300
+'''</span><span class="p">)</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">most_owed</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="s">'Brian Beta'</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_malformed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># should we raise our own exception?</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">source</span><span class="p">:</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="s">'''</span><span class="se">\
+</span><span class="s">Name,
+Adam Alpha
+'''</span><span class="p">)</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">most_owed</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s">"'Money Owed'"</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="s">'no exception raised'</span><span class="p">)</span></pre><div class="notes"><blockquote><p>copy and paste -&gt; abstract -&gt; tools</p></blockquote><p>...but then need to test those</p></div></div><div class="step" step="15" data-x="12550" data-y="800" data-z="1200"></div><div class="step" step="16" data-x="13550" data-y="800" data-z="1200"><div class="notes"><p>not only is it shorter, but it tests more!</p><p>and all the fixtures are tested</p></div></div><div class="step" step="17" id="test6" data-x="14150" data-y="400" data-z="0"><pre class="highlight code python"><span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TempDirectory</span><span class="p">,</span> <span class="n">LogCapture</span><span class="p">,</span> <span class="n">Replacer</span><span class="p">,</span> <span class="n">ShouldRaise</span><span class="p">,</span> <span class="n">test_datetime</span>
+    <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
+
+<span class="k">class</span> <span class="nc">Tests</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dir</span> <span class="o">=</span> <span class="n">TempDirectory</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">LogCapture</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">r</span> <span class="o">=</span> <span class="n">Replacer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'datetime.datetime'</span><span class="p">,</span> <span class="n">test_datetime</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">restore</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">uninstall</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">test_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">'test.csv'</span><span class="p">,</span> <span class="n">b</span><span class="s">'''</span><span class="se">\
+</span><span class="s">Name,Money Owed
+Adam Alpha,100
+'''</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">most_owed</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="s">'Adam Alpha'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">check</span><span class="p">((</span><span class="s">'root'</span><span class="p">,</span> <span class="s">'INFO'</span><span class="p">,</span> <span class="s">'Processing took 0:00:10'</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">test_max</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">'test.csv'</span><span class="p">,</span> <span class="n">b</span><span class="s">'''</span><span class="se">\
+</span><span class="s">Name,Money Owed
+Adam Alpha,100
+Brian Beta, 300
+'''</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">most_owed</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="s">'Brian Beta'</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_unicode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">'test.csv'</span><span class="p">,</span> <span class="s">'''</span><span class="se">\
+</span><span class="s">Name,Money Owed
+C</span><span class="se">\xe9</span><span class="s">dric Cee,200
+'''</span><span class="p">,</span> <span class="s">'utf8'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">most_owed</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="s">'C</span><span class="se">\xe9</span><span class="s">dric Cee'</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_whitespace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">'test.csv'</span><span class="p">,</span> <span class="n">b</span><span class="s">'''</span><span class="se">\
+</span><span class="s">Name,Money Owed
+ Adam Alpha,</span><span class="se">\t</span><span class="s">100
+'''</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">most_owed</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="s">'Adam Alpha'</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_invalid_numbers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">'test.csv'</span><span class="p">,</span> <span class="n">b</span><span class="s">'''</span><span class="se">\
+</span><span class="s">Name,Money Owed
+Adam Alpha,X
+Brian Beta, 300
+'''</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">most_owed</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="s">'Brian Beta'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">check</span><span class="p">(</span>
+            <span class="p">(</span><span class="s">'root'</span><span class="p">,</span> <span class="s">'WARNING'</span><span class="p">,</span> <span class="s">"ignoring 'X' as not valid"</span><span class="p">),</span>
+            <span class="p">(</span><span class="s">'root'</span><span class="p">,</span> <span class="s">'INFO'</span><span class="p">,</span> <span class="s">'Processing took 0:00:10'</span><span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_malformed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">'test.csv'</span><span class="p">,</span> <span class="n">b</span><span class="s">'''</span><span class="se">\
+</span><span class="s">Name,
+Adam Alpha
+'''</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">ShouldRaise</span><span class="p">(</span><span class="ne">KeyError</span><span class="p">(</span><span class="s">'Money Owed'</span><span class="p">)):</span>
+            <span class="n">most_owed</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></pre></div><div class="step highlight" step="18" id="highlight-1" data-x="14150" data-y="400"><div class="notes"><p>stop time, log capture, directory</p></div><div class="notes"><p>mention cleanups as another way, 3.1+ though!</p></div></div><div class="step highlight" step="19" id="highlight-2" data-x="14150" data-y="400"><div class="notes"><p>finally test how long it took, should do on all tests?</p></div></div><div class="step highlight" step="20" id="highlight-3" data-x="14150" data-y="1200"><div class="notes"><p>check error logging</p></div><div class="notes"><p>7 minutes</p></div></div><div class="step slide" step="21" data-x="15750" data-y="1200"><h1 id="standard-library-vs-other-libraries">Standard Library vs Other Libraries</h1><h2 id="standard-library">Standard Library</h2><ul><li>unittest</li></ul><h2 id="other-libraries">Other Libraries</h2><ul><li>testfixtures</li><li>mock</li><li>unittest2</li></ul><div class="notes"><ul><li>freedom from python version, consistent tools</li><li>mock/unittest2 merged in</li></ul></div></div><div class="step slide" step="22" data-x="17350" data-y="1200"><h1 id="comparing-things">Comparing things</h1><pre class="highlight code python"><span class="k">class</span> <span class="nc">MyTests</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">test_something</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span></pre><ul><li>Has got much better with successive Python versions</li><li>Not much help if you're stuck on 2.6/2.7</li></ul><div class="notes"><p>still not quite there</p><ul><li>rich comparision</li><li>register your own comparison function</li></ul></div></div><div class="step slide" step="23" data-x="18950" data-y="1200"><h1 id="rich-comparison">Rich comparison</h1><pre class="highlight code python"><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">compare</span></pre><pre class="highlight code python"><span class="o">&gt;&gt;&gt;</span> <span class="n">compare</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+ <span class="o">...</span>
+<span class="ne">AssertionError</span><span class="p">:</span> <span class="mi">1</span> <span class="o">!=</span> <span class="mi">2</span></pre><pre class="highlight code python"><span class="o">&gt;&gt;&gt;</span> <span class="n">compare</span><span class="p">(</span><span class="s">"1234567891011"</span><span class="p">,</span> <span class="s">"1234567789"</span><span class="p">)</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+<span class="o">...</span>
+<span class="ne">AssertionError</span><span class="p">:</span>
+<span class="s">'1234567891011'</span>
+<span class="o">!=</span>
+<span class="s">'1234567789'</span></pre></div><div class="step slide" step="24" data-x="20550" data-y="1200"><h1 id="rich-comparison-long-strings">Rich comparison: long strings</h1><pre class="highlight code python"><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">compare</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">compare</span><span class="p">(</span><span class="s">"""
+...         This is line 1
+...         This is line 2
+...         This is line 3
+...         """</span><span class="p">,</span>
+<span class="o">...</span>         <span class="s">"""
+...         This is line 1
+...         This is another line
+...         This is line 3
+...         """</span><span class="p">)</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+ <span class="o">...</span>
+<span class="ne">AssertionError</span><span class="p">:</span>
+<span class="err">@@</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span> <span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span> <span class="err">@@</span>
+
+         <span class="n">This</span> <span class="ow">is</span> <span class="n">line</span> <span class="mi">1</span>
+<span class="o">-</span>        <span class="n">This</span> <span class="ow">is</span> <span class="n">line</span> <span class="mi">2</span>
+<span class="o">+</span>        <span class="n">This</span> <span class="ow">is</span> <span class="n">another</span> <span class="n">line</span>
+         <span class="n">This</span> <span class="ow">is</span> <span class="n">line</span> <span class="mi">3</span></pre><div class="notes"><p>whitespace/line endings options: see docs!</p></div></div><div class="step slide" step="25" data-x="22150" data-y="1200"><h1 id="rich-comparison-sets">Rich comparison: sets</h1><pre class="highlight code python"><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">compare</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">compare</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]),</span> <span class="nb">set</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]))</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+ <span class="o">...</span>
+<span class="ne">AssertionError</span><span class="p">:</span> <span class="nb">set</span> <span class="ow">not</span> <span class="k">as</span> <span class="n">expected</span><span class="p">:</span>
+
+<span class="ow">in</span> <span class="n">first</span> <span class="n">but</span> <span class="ow">not</span> <span class="n">second</span><span class="p">:</span>
+<span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="ow">in</span> <span class="n">second</span> <span class="n">but</span> <span class="ow">not</span> <span class="n">first</span><span class="p">:</span>
+<span class="p">[</span><span class="mi">3</span><span class="p">]</span></pre></div><div class="step slide" step="26" data-x="23750" data-y="1200"><h1 id="rich-comparison-dicts">Rich comparison: dicts</h1><pre class="highlight code python"><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">compare</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">compare</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+ <span class="o">...</span>
+<span class="ne">AssertionError</span><span class="p">:</span> <span class="nb">dict</span> <span class="ow">not</span> <span class="k">as</span> <span class="n">expected</span><span class="p">:</span>
+
+<span class="n">same</span><span class="p">:</span>
+<span class="p">[</span><span class="s">'x'</span><span class="p">]</span>
+
+<span class="ow">in</span> <span class="n">first</span> <span class="n">but</span> <span class="ow">not</span> <span class="n">second</span><span class="p">:</span>
+<span class="s">'y'</span><span class="p">:</span> <span class="mi">2</span>
+
+<span class="ow">in</span> <span class="n">second</span> <span class="n">but</span> <span class="ow">not</span> <span class="n">first</span><span class="p">:</span>
+<span class="s">'z'</span><span class="p">:</span> <span class="mi">3</span>
+
+<span class="n">values</span> <span class="n">differ</span><span class="p">:</span>
+<span class="s">'a'</span><span class="p">:</span> <span class="mi">4</span> <span class="o">!=</span> <span class="mi">5</span></pre></div><div class="step slide" step="27" data-x="25350" data-y="1200"><h1 id="rich-comparison-sequences">Rich comparison: sequences</h1><ul><li>lists</li><li>tuples</li></ul><pre class="highlight code python"><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">compare</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">compare</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+ <span class="o">...</span>
+<span class="ne">AssertionError</span><span class="p">:</span> <span class="n">Sequence</span> <span class="ow">not</span> <span class="k">as</span> <span class="n">expected</span><span class="p">:</span>
+
+<span class="n">same</span><span class="p">:</span>
+<span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+
+<span class="n">first</span><span class="p">:</span>
+<span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+<span class="n">second</span><span class="p">:</span>
+<span class="p">[</span><span class="mi">4</span><span class="p">]</span></pre></div><div class="step slide" step="28" data-x="26950" data-y="1200"><h1 id="comparison-helpers">Comparison Helpers</h1><ul><li>not all objects support comparison</li><li>nor should they</li><li>even just to make things testable</li></ul><div class="sp200"><ul><li>some do, whether you like it or not!</li></ul></div><pre class="highlight code python"><span class="k">class</span> <span class="nc">SomeModel</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">SomeModel</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">False</span></pre><div class="notes"><p>talk through putting helper first, gets first bite of cherry</p><p>expected -&gt; actual</p></div></div><div class="step slide" step="29" data-x="28550" data-y="1200"><h1 id="rich-comparison-generators-iterators">Rich comparison: generators/iterators</h1><pre class="highlight code python"><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">my_gen</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+<span class="o">...</span>     <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="o">...</span>     <span class="k">while</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">t</span><span class="p">:</span>
+<span class="o">...</span>         <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="o">...</span>         <span class="k">yield</span> <span class="n">i</span></pre><ul><li>be careful of just comparing by id</li><li>be careful when unwinding</li></ul><div class="notes"><p>if you unwind to tuple, was it important that it was a generator</p></div><pre class="highlight code python"><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">generator</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">compare</span><span class="p">(</span><span class="n">generator</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">my_gen</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+ <span class="o">...</span>
+<span class="ne">AssertionError</span><span class="p">:</span> <span class="n">Sequence</span> <span class="ow">not</span> <span class="k">as</span> <span class="n">expected</span><span class="p">:</span>
+
+<span class="n">same</span><span class="p">:</span>
+<span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="n">first</span><span class="p">:</span>
+<span class="p">(</span><span class="mi">3</span><span class="p">,)</span>
+
+<span class="n">second</span><span class="p">:</span>
+<span class="p">()</span></pre><div class="notes"><p>talk through generator helper</p></div></div><div class="step slide" step="30" data-x="30150" data-y="1200"><h1 id="unfriendly-strings">Unfriendly strings</h1><ul><li>process ids</li><li>thread ids</li></ul><pre class="highlight code python"><span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">compare</span><span class="p">,</span> <span class="n">StringComparison</span> <span class="k">as</span> <span class="n">S</span>
+
+<span class="n">compare</span><span class="p">(</span><span class="n">S</span><span class="p">(</span><span class="s">'Starting thread \d+'</span><span class="p">),</span><span class="s">'Starting thread 132356'</span><span class="p">)</span></pre><ul><li>USE SPARINGLY!</li></ul></div><div class="step" step="31" id="comparisons" data-x="31750" data-y="1200"><div class="box"><p class="header">Objects that don't support comparison</p><pre class="highlight code python"><span class="k">class</span> <span class="nc">SomeClass</span><span class="p">:</span>
+   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span></pre></div><pre class="highlight code python sp100"><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">Comparison</span> <span class="k">as</span> <span class="n">C</span></pre><pre class="highlight code python"><span class="o">&gt;&gt;&gt;</span> <span class="n">C</span><span class="p">(</span><span class="s">'modue.SomeClass'</span><span class="p">)</span> <span class="o">==</span> <span class="n">SomeClass</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="bp">True</span></pre><pre class="highlight code python"><span class="o">&gt;&gt;&gt;</span> <span class="n">C</span><span class="p">(</span><span class="n">SomeClass</span><span class="p">)</span> <span class="o">==</span> <span class="n">SomeClass</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="bp">True</span></pre><pre class="highlight code python"><span class="o">&gt;&gt;&gt;</span> <span class="n">C</span><span class="p">(</span><span class="n">SomeClass</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="n">SomeClass</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="bp">True</span></pre><div class="box sp100"><p>useful post-comparison representation:</p><pre class="highlight code python"><span class="o">&gt;&gt;&gt;</span> <span class="n">compare</span><span class="p">(</span><span class="n">C</span><span class="p">(</span><span class="n">SomeClass</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">SomeClass</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+ <span class="o">...</span>
+<span class="ne">AssertionError</span><span class="p">:</span>
+  <span class="o">&lt;</span><span class="n">C</span><span class="p">(</span><span class="n">failed</span><span class="p">):</span><span class="o">...</span><span class="n">SomeClass</span><span class="o">&gt;</span>
+  <span class="n">x</span><span class="p">:</span><span class="mi">2</span> <span class="o">!=</span> <span class="mi">1</span>
+  <span class="n">y</span><span class="p">:</span><span class="mi">2</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Comparison</span>
+  <span class="o">&lt;/</span><span class="n">C</span><span class="o">&gt;</span> <span class="o">!=</span> <span class="o">&lt;...</span><span class="n">SomeClass</span><span class="o">...&gt;</span></pre></div><p class="box sp100">You don't have to compare all attributes:</p><pre class="highlight code python"><span class="o">&gt;&gt;&gt;</span> <span class="n">C</span><span class="p">(</span><span class="n">SomeClass</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span> <span class="o">==</span> <span class="n">SomeClass</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="bp">True</span></pre><div class="notes"><p>comparisons can also be nested</p></div></div><div class="step" step="32" data-y="1640" data-x="31750"></div><div class="step" step="33" data-y="1860" data-x="31750"></div><div class="step slide" step="34" data-x="33350" data-y="1200"><h1 id="registering-your-own-comparers">Registering your own comparers</h1><pre class="highlight code python"><span class="n">DataRow</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s">'DataRow'</span><span class="p">,</span> <span class="p">(</span><span class="s">'x'</span><span class="p">,</span> <span class="s">'y'</span><span class="p">,</span> <span class="s">'z'</span><span class="p">))</span></pre><pre class="highlight code python"><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">testfixtures.comparison</span> <span class="kn">import</span> <span class="n">register</span><span class="p">,</span> <span class="n">compare_sequence</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">register</span><span class="p">(</span><span class="n">DataRow</span><span class="p">,</span> <span class="n">compare_sequence</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">compare</span><span class="p">(</span><span class="n">DataRow</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">DataRow</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+ <span class="o">...</span>
+<span class="ne">AssertionError</span><span class="p">:</span> <span class="n">Sequence</span> <span class="ow">not</span> <span class="k">as</span> <span class="n">expected</span><span class="p">:</span>
+
+<span class="n">same</span><span class="p">:</span>
+<span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="n">first</span><span class="p">:</span>
+<span class="p">(</span><span class="mi">3</span><span class="p">,)</span>
+
+<span class="n">second</span><span class="p">:</span>
+<span class="p">(</span><span class="mi">4</span><span class="p">,)</span></pre><p>Standard library has better support in 3.1+:</p><pre class="highlight code python">    <span class="k">def</span> <span class="nf">test_different</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addTypeEqualityFunc</span><span class="p">(</span><span class="n">DataRow</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertSequenceEqual</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">DataRow</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">DataRow</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span></pre></div><div class="step slide" step="35" data-x="34950" data-y="1200"><h1 id="strict-comparison">Strict comparison</h1><ul><li>comparison is relaxed and useful by default:</li></ul><div class="box"><pre class="highlight ">&gt;&gt;&gt; TypeA = namedtuple('A', 'x')
+&gt;&gt;&gt; TypeB = namedtuple('B', 'x')
+&gt;&gt;&gt; compare(TypeA(1), TypeB(1))
+&lt;identity&gt;</pre></div><ul><li>not always what you want, so you can be strict</li></ul><div class="box"><pre class="highlight ">&gt;&gt;&gt; compare(TypeA(1), TypeB(1), strict=True)
+Traceback (most recent call last):
+ ...
+AssertionError:
+A(x=1) (&lt;class '__main__.A'&gt;)!= B(x=1) (&lt;class '__main__.B'&gt;)</pre></div></div><div class="step slide" step="36" data-x="36550" data-y="1200"><h1 id="what-about-some-context">What about some context?</h1><ul><li>all this rich comparison is great</li><li>no contextual information provided</li></ul><pre class="highlight code python"><span class="o">&gt;&gt;&gt;</span> <span class="n">compare</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s">'wrong number of orders'</span><span class="p">)</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+ <span class="o">...</span>
+<span class="ne">AssertionError</span><span class="p">:</span> <span class="n">wrong</span> <span class="n">number</span> <span class="n">of</span> <span class="n">orders</span><span class="p">:</span> <span class="mi">1</span> <span class="o">!=</span> <span class="mi">2</span></pre><ul><li>works with all previous examples</li></ul><div class="notes"><p>13 minutes</p></div></div><div class="step slide" step="37" data-x="38150" data-y="1200"><h1 id="things-that-print">Things that print</h1><ul><li>Lots of code writes to stdout/stderr</li></ul><pre class="highlight code python"><span class="k">def</span> <span class="nf">myfunction</span><span class="p">()</span>
+    <span class="c"># code under test</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"Hello!"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"Something bad happened!"</span><span class="p">,</span> <span class="nb">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span></pre><ul><li>We should test that:</li></ul><pre class="highlight code python"><span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">OutputCapture</span>
+<span class="k">with</span> <span class="n">OutputCapture</span><span class="p">()</span> <span class="k">as</span> <span class="n">output</span><span class="p">:</span>
+    <span class="n">myfunction</span><span class="p">()</span>
+
+<span class="n">output</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="s">'''
+Hello!
+Something bad happened!
+'''</span><span class="p">)</span></pre><ul><li>Whitespace is stripped before comparison</li></ul><pre class="highlight code python"><span class="n">output</span><span class="o">.</span><span class="n">captured</span></pre><div class="notes"><p>also a way to clear up poor code under test</p></div></div><div class="step slide" step="38" data-x="39750" data-y="1200"><h1 id="exceptions">Exceptions</h1><pre class="highlight code python"><span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">ShouldRaise</span></pre><pre class="highlight code python"><span class="k">with</span> <span class="n">ShouldRaise</span><span class="p">():</span>
+    <span class="o">...</span></pre><pre class="highlight code python"><span class="k">with</span> <span class="n">ShouldRaise</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+    <span class="o">...</span></pre><pre class="highlight code python"><span class="k">with</span> <span class="n">ShouldRaise</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s">'Something went wrong!'</span><span class="p">))</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="o">...</span>
+<span class="n">compare</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">raised</span><span class="p">),</span> <span class="s">'Something went wrong!'</span><span class="p">)</span></pre><p>Standard library provides some of this in 3.1+:</p><pre class="highlight code python"><span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">SomeException</span><span class="p">)</span> <span class="k">as</span> <span class="n">cm</span><span class="p">:</span>
+   <span class="o">...</span>
+
+<span class="n">the_exception</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">exception</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">the_exception</span><span class="o">.</span><span class="n">error_code</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span></pre></div><div class="step slide" step="39" data-x="41350" data-y="1200"><h1 id="files-and-directories">Files and Directories</h1><ul><li>annoying to set up</li><li>have to remember to clean up</li><li>difficult to make cross-platform</li></ul><pre class="highlight code python"><span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">TempDirectory</span>
+
+<span class="k">class</span> <span class="nc">MyTests</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dir</span> <span class="o">=</span> <span class="n">TempDirectory</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></pre><div class="notes"><p>tempted to release this just for working with filesystems
+outside tests!</p></div></div><div class="step slide" step="40" data-x="42950" data-y="1200"><h1 id="writing-files">Writing files</h1><ul><li>gives you back the path written:</li></ul><pre class="highlight code python"><span class="k">with</span> <span class="n">TempDirectory</span> <span class="k">as</span> <span class="nb">dir</span><span class="p">:</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="nb">dir</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">'foo.txt'</span><span class="p">,</span> <span class="n">b</span><span class="s">'bar'</span><span class="p">)</span></pre><ul><li>can do the encoding for you:</li></ul><pre class="highlight code python"><span class="k">with</span> <span class="n">TempDirectory</span> <span class="k">as</span> <span class="nb">dir</span><span class="p">:</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="nb">dir</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">'foo.txt'</span><span class="p">,</span> <span class="s">'bar'</span><span class="p">,</span> <span class="s">'utf8'</span><span class="p">)</span></pre><ul><li>can take sequences of path segments:</li></ul><pre class="highlight code python"><span class="k">with</span> <span class="n">TempDirectory</span> <span class="k">as</span> <span class="nb">dir</span><span class="p">:</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="nb">dir</span><span class="o">.</span><span class="n">write</span><span class="p">((</span><span class="s">'root'</span><span class="p">,</span> <span class="n">gethostname</span><span class="p">(),</span> <span class="s">'foo.txt'</span><span class="p">),</span> <span class="s">'bar'</span><span class="p">)</span></pre><ul><li>takes slash separated path, on all operating systems:</li></ul><pre class="highlight code python"><span class="k">with</span> <span class="n">TempDirectory</span> <span class="k">as</span> <span class="nb">dir</span><span class="p">:</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="nb">dir</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">'my_folder/foo.txt'</span><span class="p">,</span> <span class="s">'bar'</span><span class="p">)</span></pre></div><div class="step slide" step="41" data-x="44550" data-y="1200"><h1 id="okay-but-it-s-my-code-that-s-writing">Okay, but it's my code that's writing!</h1><ul><li>get a path that doesn't yet exist:</li></ul><pre class="highlight code python"><span class="k">with</span> <span class="n">TempDirectory</span> <span class="k">as</span> <span class="nb">dir</span><span class="p">:</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="nb">dir</span><span class="o">.</span><span class="n">getpath</span><span class="p">(</span><span class="s">'foo.txt'</span><span class="p">)</span></pre><ul><li>can take some familiar options:</li></ul><pre class="highlight code python"><span class="k">with</span> <span class="n">TempDirectory</span> <span class="k">as</span> <span class="nb">dir</span><span class="p">:</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="nb">dir</span><span class="o">.</span><span class="n">getpath</span><span class="p">((</span><span class="s">'root'</span><span class="p">,</span> <span class="n">gethostname</span><span class="p">(),</span> <span class="s">'foo.txt'</span><span class="p">))</span></pre><pre class="highlight code python"><span class="k">with</span> <span class="n">TempDirectory</span> <span class="k">as</span> <span class="nb">dir</span><span class="p">:</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="nb">dir</span><span class="o">.</span><span class="n">getpath</span><span class="p">(</span><span class="s">'my_folder/foo.txt'</span><span class="p">)</span></pre></div><div class="step slide" step="42" data-x="46150" data-y="1200"><h1 id="reading-files">Reading files</h1><ul><li>gives you bytes by default:</li></ul><pre class="highlight code python"><span class="k">with</span> <span class="n">TempDirectory</span> <span class="k">as</span> <span class="nb">dir</span><span class="p">:</span>
+    <span class="o">...</span>
+    <span class="n">compare</span><span class="p">(</span><span class="n">b</span><span class="s">'expected'</span><span class="p">,</span> <span class="nb">dir</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s">'foo.txt'</span><span class="p">))</span></pre><ul><li>but can decode if you want:</li></ul><pre class="highlight code python"><span class="k">with</span> <span class="n">TempDirectory</span> <span class="k">as</span> <span class="nb">dir</span><span class="p">:</span>
+    <span class="o">...</span>
+    <span class="n">compare</span><span class="p">(</span><span class="s">'expected'</span><span class="p">,</span> <span class="nb">dir</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s">'foo.txt'</span><span class="p">,</span> <span class="s">'utf8'</span><span class="p">))</span></pre><ul><li>the usual suspects:</li></ul><pre class="highlight code python"><span class="k">with</span> <span class="n">TempDirectory</span> <span class="k">as</span> <span class="nb">dir</span><span class="p">:</span>
+    <span class="n">actual</span> <span class="o">=</span> <span class="nb">dir</span><span class="o">.</span><span class="n">read</span><span class="p">((</span><span class="s">'root'</span><span class="p">,</span> <span class="n">gethostname</span><span class="p">(),</span> <span class="s">'foo.txt'</span><span class="p">))</span></pre><pre class="highlight code python"><span class="k">with</span> <span class="n">TempDirectory</span> <span class="k">as</span> <span class="nb">dir</span><span class="p">:</span>
+    <span class="n">actual</span> <span class="o">=</span> <span class="nb">dir</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s">'my_folder/foo.txt'</span><span class="p">)</span></pre></div><div class="step slide" step="43" data-x="47750" data-y="1200"><h1 id="directories">Directories</h1><ul><li>easy to create, including intermediate directories:</li></ul><pre class="highlight code python"><span class="k">with</span> <span class="n">TempDirectory</span> <span class="k">as</span> <span class="nb">dir</span><span class="p">:</span>
+    <span class="n">dir_path</span> <span class="o">=</span> <span class="nb">dir</span><span class="o">.</span><span class="n">makedir</span><span class="p">(</span><span class="s">'root/userfolder'</span><span class="p">)</span></pre><pre class="highlight code python"><span class="k">with</span> <span class="n">TempDirectory</span> <span class="k">as</span> <span class="nb">dir</span><span class="p">:</span>
+    <span class="n">dir_path</span> <span class="o">=</span> <span class="nb">dir</span><span class="o">.</span><span class="n">makedir</span><span class="p">((</span><span class="s">'root'</span><span class="p">,</span> <span class="n">gethostname</span><span class="p">()))</span></pre><ul><li>check contents of a particular directory:</li></ul><pre class="highlight code python"><span class="k">with</span> <span class="n">TempDirectory</span> <span class="k">as</span> <span class="nb">dir</span><span class="p">:</span>
+    <span class="o">...</span>
+    <span class="nb">dir</span><span class="o">.</span><span class="n">check_dir</span><span class="p">(</span><span class="s">'root/userfolder'</span><span class="p">,</span>
+                  <span class="s">'user1.txt'</span><span class="p">,</span> <span class="s">'user2.txt'</span><span class="p">)</span></pre></div><div class="step slide" step="44" data-x="49350" data-y="1200"><h1 id="id1">Directories</h1><ul><li>can recursively check the contents of the whole temporary directory:</li></ul><pre class="highlight code python"><span class="k">with</span> <span class="n">TempDirectory</span> <span class="k">as</span> <span class="nb">dir</span><span class="p">:</span>
+    <span class="o">...</span>
+    <span class="nb">dir</span><span class="o">.</span><span class="n">check_all</span><span class="p">(</span><span class="s">''</span><span class="p">,</span>
+                  <span class="s">'root/'</span><span class="p">,</span>
+                  <span class="s">'root/userfolder/'</span><span class="p">,</span>
+                  <span class="s">'root/userfolder/user1.txt'</span><span class="p">,</span>
+                  <span class="s">'root/userfolder/user2.txt'</span><span class="p">)</span></pre><ul><li>stable, ordered and cross platform</li><li>can be configured to ignore certain name patterns</li></ul></div><div class="step slide" step="45" data-x="50950" data-y="1200"><h1 id="logging">Logging</h1><p class="mg20">Python has a great standard logging framework:</p><ul><li>separates log generation from log recording</li><li>provides a good interface for libraries</li><li>has gotten much easier to configure handlers</li><li>rarely tested!</li></ul></div><div class="step" step="46" data-x="52550" data-y="1200"><pre class="highlight code python"><span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">block</span><span class="p">):</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">'start of block number </span><span class="si">%i</span><span class="s">'</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">'No code to run!'</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">'error occurred'</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></pre></div><div class="step pop" step="47" id="log1" data-x="52550" data-y="1600" data-z="400"><pre class="highlight code python"><span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">LogCapture</span>
+
+<span class="k">with</span> <span class="n">LogCapture</span><span class="p">()</span> <span class="k">as</span> <span class="n">log</span><span class="p">:</span>
+    <span class="n">process</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">log</span><span class="o">.</span><span class="n">check</span><span class="p">(</span>
+    <span class="p">(</span><span class="s">'root'</span><span class="p">,</span> <span class="s">'INFO'</span><span class="p">,</span> <span class="s">'start of block number 1'</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'root'</span><span class="p">,</span> <span class="s">'ERROR'</span><span class="p">,</span> <span class="s">'error occurred'</span><span class="p">),</span>
+<span class="p">)</span></pre></div><div class="step pop" step="48" id="log2" data-y="1600" data-x="52550" data-z="400"><pre class="highlight code python"><span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Comparison</span> <span class="k">as</span> <span class="n">C</span><span class="p">,</span> <span class="n">LogCapture</span><span class="p">,</span> <span class="n">compare</span>
+    <span class="p">)</span>
+
+<span class="k">with</span> <span class="n">LogCapture</span><span class="p">()</span> <span class="k">as</span> <span class="n">log</span><span class="p">:</span>
+    <span class="n">process</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">compare</span><span class="p">(</span><span class="n">C</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">(</span><span class="s">'No code to run!'</span><span class="p">)),</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">records</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">exc_info</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></pre></div><div class="step slide" step="49" data-x="54150" data-z="0" data-y="1600"><h1 id="only-capturing-certain-logging">Only capturing certain logging</h1><ul><li>capture above a certain level</li></ul><pre class="highlight code python"><span class="k">with</span> <span class="n">LogCapture</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span> <span class="k">as</span> <span class="n">log</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">=</span> <span class="n">getLogger</span><span class="p">()</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">'junk'</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">'what we care about'</span><span class="p">)</span>
+
+<span class="n">log</span><span class="o">.</span><span class="n">check</span><span class="p">((</span><span class="s">'root'</span><span class="p">,</span> <span class="s">'INFO'</span><span class="p">,</span> <span class="s">'what we care about'</span><span class="p">))</span></pre><ul><li>capture a particular logger</li></ul><pre class="highlight code python"><span class="k">with</span> <span class="n">LogCapture</span><span class="p">(</span><span class="s">'specific'</span><span class="p">)</span> <span class="k">as</span> <span class="n">log</span><span class="p">:</span>
+    <span class="n">getLogger</span><span class="p">(</span><span class="s">'something'</span><span class="p">)</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">'junk'</span><span class="p">)</span>
+    <span class="n">getLogger</span><span class="p">(</span><span class="s">'specific'</span><span class="p">)</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">'what we care about'</span><span class="p">)</span>
+    <span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">'more junk'</span><span class="p">)</span>
+
+<span class="n">log</span><span class="o">.</span><span class="n">check</span><span class="p">((</span><span class="s">'specific'</span><span class="p">,</span> <span class="s">'INFO'</span><span class="p">,</span> <span class="s">'what we care about'</span><span class="p">))</span></pre></div><div class="step slide" step="50" data-x="55750" data-y="1600"><h1 id="id2">Only capturing certain logging</h1><ul><li>capture during a particular piece of code</li></ul><pre class="highlight code python"><span class="k">class</span> <span class="nc">JobTests</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">LogCapture</span><span class="p">(</span><span class="n">install</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">job</span> <span class="o">=</span> <span class="n">MyJob</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">install</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">uninstall</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">test_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">test_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">test_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">uninstall</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">job</span><span class="o">.</span><span class="n">prepare</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">install</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">job</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></pre><div class="notes"><p>could use two logcaptures?</p><p>debug means no silly default handler setup</p></div></div><div class="step slide" step="51" data-x="57350" data-y="1600"><h1 id="testing-handler-configuration">Testing handler configuration</h1><pre class="highlight code python"><span class="k">class</span> <span class="nc">LoggingConfigurationTests</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">orig_handlers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span> <span class="o">=</span> <span class="p">[]</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">level</span>
+
+     <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">orig_handlers</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">level</span>
+
+     <span class="k">def</span> <span class="nf">test_basic_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+         <span class="c"># do configuration</span>
+         <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">format</span><span class="o">=</span><span class="s">'</span><span class="si">%(levelname)s</span><span class="s"> </span><span class="si">%(message)s</span><span class="s">'</span><span class="p">,</span>
+                             <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+         <span class="c"># check results of configuration</span>
+         <span class="n">compare</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">level</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+         <span class="n">compare</span><span class="p">([</span>
+             <span class="n">C</span><span class="p">(</span><span class="s">'logging.StreamHandler'</span><span class="p">,</span>
+               <span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
+               <span class="n">formatter</span><span class="o">=</span><span class="n">C</span><span class="p">(</span><span class="s">'logging.Formatter'</span><span class="p">,</span>
+                           <span class="n">_fmt</span><span class="o">=</span><span class="s">'</span><span class="si">%(levelname)s</span><span class="s"> </span><span class="si">%(message)s</span><span class="s">'</span><span class="p">,</span>
+                           <span class="n">strict</span><span class="o">=</span><span class="bp">False</span><span class="p">),</span>
+               <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">NOTSET</span><span class="p">,</span>
+               <span class="n">strict</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+             <span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">)</span></pre></div><div class="step highlight" step="52" id="highlight-4" data-x="57350" data-y="1600"><div class="notes"><p># We mock out the handlers list for the logger we're
+# configuring in such a way that we have no handlers
+# configured at the start of the test and the handlers our
+# configuration installs are removed at the end of the test.</p></div></div><div class="step highlight" step="53" id="highlight-5" data-x="57350" data-y="1600"><div class="notes"><p>check level is set correctly</p></div></div><div class="step highlight" step="54" id="highlight-6" data-x="57350" data-y="1600"><div class="notes"><p># Now we check the configuration is as expected:</p></div><div class="notes"><p>19 minutes</p></div></div><div class="step slide" step="55" data-x="58950" data-y="1600"><h1 id="mocking">Mocking</h1><ul><li>complex functionality with a defined API</li><li>simple mock that matches that API</li><li>often make assertions about calls</li><li>sometimes need side effects / behaviour</li></ul></div><div class="step slide" step="56" data-x="60550" data-y="1600"><h1 id="where-do-you-mock">Where do you mock?</h1><p>One place:</p><pre class="highlight code python"><span class="kn">import</span> <span class="nn">datetime</span> <span class="kn">as</span> <span class="nn">dt</span>
+
+<span class="k">def</span> <span class="nf">my_code</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2013</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">30</span><span class="p">):</span>
+        <span class="n">say_i_do</span><span class="p">()</span></pre><p class="sp100">Lots of places:</p><pre class="highlight code python"><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="k">def</span> <span class="nf">my_code</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2013</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">30</span><span class="p">):</span>
+        <span class="n">say_i_do</span><span class="p">()</span></pre></div><div class="step slide" step="57" data-x="62150" data-y="1600"><h1 id="how-do-you-mock">How do you mock?</h1><h2 id="patch-decorator-from-mock">Patch decorator from mock</h2><pre class="highlight code python"><span class="o">&gt;&gt;&gt;</span> <span class="nd">@patch</span><span class="p">(</span><span class="s">'package.module.Class'</span><span class="p">)</span>
+<span class="o">...</span> <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">MockClass</span><span class="p">):</span>
+<span class="o">...</span>     <span class="n">instance</span> <span class="o">=</span> <span class="n">MockClass</span><span class="o">.</span><span class="n">return_value</span>
+<span class="o">...</span>     <span class="n">instance</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="s">'foo'</span>
+<span class="o">...</span>     <span class="kn">from</span> <span class="nn">package.module</span> <span class="kn">import</span> <span class="n">Class</span>
+<span class="o">...</span>     <span class="k">assert</span> <span class="n">Class</span><span class="p">()</span> <span class="ow">is</span> <span class="n">instance</span>
+<span class="o">...</span>     <span class="k">assert</span> <span class="n">Class</span><span class="p">()</span><span class="o">.</span><span class="n">method</span><span class="p">()</span> <span class="o">==</span> <span class="s">'foo'</span></pre><ul><li>returns a Mock instance for you</li><li>can only mock one thing per instance</li></ul><div class="notes"><p>don't use asserts! (crap error messages)</p></div></div><div class="step slide" step="58" data-x="63750" data-y="1600"><h1 id="id3">How do you mock?</h1><h2 id="replacer-from-testfixtures">Replacer from testfixtures</h2><pre class="highlight code python"><span class="k">def</span> <span class="nf">test_function</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">Replacer</span><span class="p">()</span> <span class="k">as</span> <span class="n">r</span><span class="p">:</span>
+        <span class="n">mock_method</span> <span class="o">=</span> <span class="n">Mock</span><span class="p">()</span>
+        <span class="n">mock_class</span> <span class="o">=</span> <span class="n">Mock</span><span class="p">()</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'module.AClass.method'</span><span class="p">,</span> <span class="n">mock_method</span><span class="p">)</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'module.BClass'</span><span class="p">,</span> <span class="n">mock_class</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">module</span> <span class="kn">import</span> <span class="n">BClass</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">AClass</span><span class="p">()</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">BClass</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">method</span><span class="p">()</span> <span class="ow">is</span> <span class="n">mock_method</span><span class="o">.</span><span class="n">return_value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">y</span> <span class="ow">is</span> <span class="n">mock_class</span><span class="o">.</span><span class="n">return_value</span><span class="p">)</span></pre><ul><li>you can insert any object of your choice</li><li>it's simple to mock multiple things</li></ul><div class="notes"><p>can also be used manually and as a decorator</p></div></div><div class="step slide" step="59" data-x="65350" data-y="1600"><h1 id="mocking-other-things">Mocking other things</h1><pre class="highlight code python"><span class="n">someDict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="s">'value'</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+    <span class="p">)</span></pre><ul><li>dict keys</li></ul><pre class="highlight code python"><span class="k">with</span> <span class="n">Replacer</span><span class="p">()</span> <span class="k">as</span> <span class="n">r</span><span class="p">:</span>
+    <span class="n">r</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'module.someDict.x'</span><span class="p">,</span> <span class="s">'foo'</span><span class="p">)</span>
+    <span class="n">pprint</span><span class="p">(</span><span class="n">someDict</span><span class="p">)</span>
+
+<span class="p">{</span><span class="s">'x'</span><span class="p">:</span> <span class="s">'foo'</span><span class="p">,</span> <span class="s">'y'</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]}</span></pre><ul><li>elements in lists</li></ul><pre class="highlight code python"><span class="k">with</span> <span class="n">Replacer</span><span class="p">()</span> <span class="k">as</span> <span class="n">r</span><span class="p">:</span>
+    <span class="n">r</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'module.someDict.y.1'</span><span class="p">,</span> <span class="mi">42</span><span class="p">)</span>
+    <span class="n">pprint</span><span class="p">(</span><span class="n">someDict</span><span class="p">)</span>
+
+<span class="p">{</span><span class="s">'x'</span><span class="p">:</span> <span class="s">'value'</span><span class="p">,</span> <span class="s">'y'</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="mi">3</span><span class="p">]}</span></pre></div><div class="step slide" step="60" data-x="66950" data-y="1600"><h1 id="removing-things">Removing things</h1><ul><li>attributes</li></ul><pre class="highlight code python"><span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">Replacer</span><span class="p">,</span> <span class="n">not_there</span>
+
+<span class="k">with</span> <span class="n">Replacer</span><span class="p">()</span> <span class="k">as</span> <span class="n">r</span><span class="p">:</span>
+    <span class="n">r</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'module.someDict.x'</span><span class="p">,</span> <span class="n">not_there</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s">'someDict'</span><span class="p">)</span>
+
+<span class="bp">False</span></pre><ul><li>keys in dictionaries</li></ul><pre class="highlight code python"><span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">Replacer</span><span class="p">,</span> <span class="n">not_there</span>
+
+<span class="k">with</span> <span class="n">Replacer</span><span class="p">()</span> <span class="k">as</span> <span class="n">r</span><span class="p">:</span>
+    <span class="n">r</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'module.someDict.y'</span><span class="p">,</span> <span class="n">not_there</span><span class="p">)</span>
+    <span class="n">pprint</span><span class="p">(</span><span class="n">someDict</span><span class="p">)</span>
+
+<span class="p">{</span><span class="s">'x'</span><span class="p">:</span> <span class="s">'value'</span><span class="p">}</span></pre></div><div class="step slide" step="61" data-x="68550" data-y="1600"><h1 id="things-that-might-be-there">Things that might be there</h1><pre class="highlight code python"><span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">guppy</span> <span class="kn">import</span> <span class="n">hpy</span>
+    <span class="n">guppy</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">guppy</span> <span class="o">=</span> <span class="bp">False</span>
+
+<span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">guppy</span><span class="p">:</span>
+        <span class="n">hpy</span><span class="p">()</span><span class="o">.</span><span class="n">heap</span><span class="p">()</span><span class="o">.</span><span class="n">stat</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></pre><pre class="highlight code python"><span class="kn">from</span> <span class="nn">mock</span> <span class="kn">import</span> <span class="n">Mock</span><span class="p">,</span> <span class="n">call</span>
+<span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">replace</span>
+
+<span class="k">class</span> <span class="nc">Tests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+
+    <span class="nd">@replace</span><span class="p">(</span><span class="s">'module.guppy'</span><span class="p">,</span><span class="bp">True</span><span class="p">)</span>
+    <span class="nd">@replace</span><span class="p">(</span><span class="s">'module.hpy'</span><span class="p">,</span> <span class="n">Mock</span><span class="p">(),</span> <span class="n">strict</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hpy</span><span class="p">):</span>
+
+        <span class="n">dump</span><span class="p">(</span><span class="s">'somepath'</span><span class="p">)</span>
+
+        <span class="n">compare</span><span class="p">([</span>
+                 <span class="n">call</span><span class="p">(),</span>
+                 <span class="n">call</span><span class="p">()</span><span class="o">.</span><span class="n">heap</span><span class="p">(),</span>
+                 <span class="n">call</span><span class="p">()</span><span class="o">.</span><span class="n">heap</span><span class="p">()</span><span class="o">.</span><span class="n">stat</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="s">'somepath'</span><span class="p">)</span>
+                <span class="p">],</span> <span class="n">hpy</span><span class="o">.</span><span class="n">mock_calls</span><span class="p">)</span></pre></div><div class="step slide" step="62" data-x="70150" data-y="1600"><h1 id="what-mock-to-use">What mock to use?</h1><ul><li>Michael Foord's mock library</li><li>soon to be in standard library</li><li>worthy of a talk of its own</li><li>what about dates and times?</li></ul></div><div class="step slide" step="63" data-x="71750" data-y="1600"><h1 id="datetimes">datetimes</h1><pre class="highlight code python"><span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">test_datetime</span></pre><ul><li>simple, variable gap times by default:</li></ul><pre class="highlight code python"><span class="n">datetime</span> <span class="o">=</span> <span class="n">test_datetime</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+
+<span class="mi">2001</span><span class="o">-</span><span class="mo">01</span><span class="o">-</span><span class="mo">01</span> <span class="mo">00</span><span class="p">:</span><span class="mo">00</span><span class="p">:</span><span class="mo">00</span>
+<span class="mi">2001</span><span class="o">-</span><span class="mo">01</span><span class="o">-</span><span class="mo">01</span> <span class="mo">00</span><span class="p">:</span><span class="mo">00</span><span class="p">:</span><span class="mi">10</span>
+<span class="mi">2001</span><span class="o">-</span><span class="mo">01</span><span class="o">-</span><span class="mo">01</span> <span class="mo">00</span><span class="p">:</span><span class="mo">00</span><span class="p">:</span><span class="mi">30</span></pre></div><div class="step slide" step="64" data-x="73350" data-y="1600"><h1 id="id4">datetimes</h1><pre class="highlight code python"><span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">test_datetime</span></pre><ul><li>can be specifically configured:</li></ul><pre class="highlight code python"><span class="n">datetime</span> <span class="o">=</span> <span class="n">test_datetime</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+<span class="n">datetime</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">1978</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">datetime</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">2013</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+
+<span class="mi">1978</span><span class="o">-</span><span class="mo">06</span><span class="o">-</span><span class="mi">13</span> <span class="mi">16</span><span class="p">:</span><span class="mo">00</span><span class="p">:</span><span class="mo">01</span>
+<span class="mi">2013</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mi">23</span> <span class="mi">14</span><span class="p">:</span><span class="mi">30</span><span class="p">:</span><span class="mo">00</span></pre><div class="notes"><p>remember to talk about .set()!</p></div></div><div class="step slide" step="65" data-x="74950" data-y="1600"><h1 id="id5">datetimes</h1><pre class="highlight code python"><span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">test_datetime</span></pre><ul><li>can also just have deltas configured:</li></ul><pre class="highlight code python"><span class="n">datetime</span> <span class="o">=</span> <span class="n">test_datetime</span><span class="p">(</span><span class="n">delta</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">delta_type</span><span class="o">=</span><span class="s">'hours'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+
+<span class="mi">2001</span><span class="o">-</span><span class="mo">01</span><span class="o">-</span><span class="mo">01</span> <span class="mo">00</span><span class="p">:</span><span class="mo">00</span><span class="p">:</span><span class="mo">00</span>
+<span class="mi">2001</span><span class="o">-</span><span class="mo">01</span><span class="o">-</span><span class="mo">01</span> <span class="mo">02</span><span class="p">:</span><span class="mo">00</span><span class="p">:</span><span class="mo">00</span></pre><ul><li>good support for time zones.</li></ul></div><div class="step slide" step="66" data-x="76550" data-y="1600"><h1 id="dates">dates</h1><pre class="highlight code python"><span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">test_date</span></pre><ul><li>Non-sequential dates by default:</li></ul><pre class="highlight code python"><span class="n">date</span> <span class="o">=</span> <span class="n">test_date</span><span class="p">(</span><span class="mi">2013</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">23</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">())</span>
+
+<span class="mi">2013</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mi">23</span>
+<span class="mi">2013</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mi">24</span>
+<span class="mi">2013</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mi">26</span></pre></div><div class="step slide" step="67" data-x="78150" data-y="1600"><h1 id="id6">dates</h1><pre class="highlight code python"><span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">test_date</span></pre><ul><li>specific dates can be configured:</li></ul><pre class="highlight code python"><span class="n">date</span> <span class="o">=</span> <span class="n">test_date</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+<span class="n">date</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">1978</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+<span class="n">date</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">2013</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">23</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">())</span>
+
+<span class="mi">1978</span><span class="o">-</span><span class="mo">06</span><span class="o">-</span><span class="mi">13</span>
+<span class="mi">2013</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mi">23</span></pre></div><div class="step slide" step="68" data-x="79750" data-y="1600"><h1 id="id7">dates</h1><pre class="highlight code python"><span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">test_date</span></pre><ul><li>deltas can be configured for dates too:</li></ul><pre class="highlight code python"><span class="n">date</span> <span class="o">=</span> <span class="n">test_date</span><span class="p">(</span><span class="n">delta</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">delta_type</span><span class="o">=</span><span class="s">'days'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">())</span>
+
+<span class="mi">2001</span><span class="o">-</span><span class="mo">01</span><span class="o">-</span><span class="mo">01</span>
+<span class="mi">2001</span><span class="o">-</span><span class="mo">01</span><span class="o">-</span><span class="mo">03</span></pre></div><div class="step slide" step="69" data-x="81350" data-y="1600"><h1 id="times">times</h1><pre class="highlight code python"><span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">test_time</span></pre><ul><li>sequential times with increasing gaps:</li></ul><pre class="highlight code python"><span class="n">time</span> <span class="o">=</span> <span class="n">test_time</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">time</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="n">time</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="n">time</span><span class="p">())</span>
+
+<span class="mf">978307200.0</span>
+<span class="mf">978307201.0</span>
+<span class="mf">978307203.0</span></pre></div><div class="step slide" step="70" data-x="82950" data-y="1600"><h1 id="id8">times</h1><pre class="highlight code python"><span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">test_time</span></pre><ul><li>specific times can be configured:</li></ul><pre class="highlight code python"><span class="n">time</span> <span class="o">=</span> <span class="n">test_time</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+<span class="n">time</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">1978</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">time</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">2013</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">time</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="n">time</span><span class="p">())</span>
+
+<span class="mf">266601660.0</span>
+<span class="mf">1364049000.0</span></pre></div><div class="step slide" step="71" data-x="84550" data-y="1600"><h1 id="id9">times</h1><pre class="highlight code python"><span class="kn">from</span> <span class="nn">testfixtures</span> <span class="kn">import</span> <span class="n">test_time</span></pre><ul><li>sub-second deltas are supported:</li></ul><pre class="highlight code python"><span class="n">time</span> <span class="o">=</span> <span class="n">test_time</span><span class="p">(</span><span class="n">delta</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">delta_type</span><span class="o">=</span><span class="s">'seconds'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">time</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="n">time</span><span class="p">())</span>
+
+<span class="mf">978307200.0</span>
+<span class="mf">978307200.5</span></pre></div><div class="step slide" step="72" data-x="86150" data-y="1600"><h1 id="common-pitfalls">Common pitfalls</h1><h2 id="symmetric-testing">Symmetric testing</h2><ul><li>proves nothing</li></ul><h2 id="excessive-mocking">Excessive mocking</h2><ul><li>misses interface changes</li><li>doesn't match real behaviour</li></ul></div><div class="step slide" step="73" data-x="87750" data-y="1600"><h1 id="modes-of-operation">Modes of operation</h1><p>TempDirectory, Replacer and LogCapture can all be used:</p><ul><li>as a decorator</li><li>as a context manager</li><li>manual, as we have in these examples</li></ul></div><div class="step slide" step="74" id="questions" data-x="89350" data-y="1600"><h1 id="questions">Questions</h1><p>?</p></div><div class="step slide" step="75" id="links" data-x="90950" data-y="1600"><h1 id="links">Links</h1><h2 id="testfixtures">testfixtures</h2><ul><li><a href="https://pypi.python.org/pypi/testfixtures">https://pypi.python.org/pypi/testfixtures</a></li><li>search for "testfixtures python"</li></ul><h2 id="mock">mock</h2><ul><li><a href="http://docs.python.org/dev/library/unittest.mock">http://docs.python.org/dev/library/unittest.mock</a></li><li>search for "python mock"</li></ul><h2 id="chris-withers">Chris Withers</h2><ul><li><a href="mailto:chris@withers.org">chris@withers.org</a></li><li>@chriswithers13</li></ul><div class="notes"><p>testfixtures and mock are available separately, py25 - py33</p><p>READ THE DOCS - context managers, decorators, etc</p><p>newer unittest features only really fully there in py33
+unittest2 may bring a lot of it?</p></div></div></div><div id="hovercraft-help"><table><tr><th>Space</th><td>Forward</td></tr><tr><th>Left, Down, Page Down</th><td>Next slide</td></tr><tr><th>Right, Up, Page Up</th><td>Previous slide</td></tr><tr><th>P</th><td>Open presenter console</td></tr><tr><th>H</th><td>Toggle this help</td></tr></table></div><script type="text/javascript" src="js/impress.js"></script><script type="text/javascript" src="js/impressConsole.js"></script><script type="text/javascript" src="js/hovercraft.js"></script></body></html>

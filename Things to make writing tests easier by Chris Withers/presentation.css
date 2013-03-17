@@ -1,0 +1,315 @@
+/* reset */
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 35px;
+    font: inherit;
+    vertical-align: baseline;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+body {
+    line-height: 1;
+}
+ol, ul {
+    list-style: disc;
+    list-style-position: inside;
+    font-size: 35px;
+}
+blockquote, q {
+    quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* presentation styles */
+
+body {
+    font-family: 'PT Sans', sans-serif;
+
+    background: #628CCD;
+    background: -webkit-gradient(radial, 50% 50%, 0, 50% 50%, 500, from(rgb(240, 240, 240)), to(#628CCD));
+    background: -webkit-radial-gradient(rgb(240, 240, 240), #CCC);
+    background:    -moz-radial-gradient(rgb(240, 240, 240), #628CCD);
+    background:     -ms-radial-gradient(rgb(240, 240, 240), #628CCD);
+    background:      -o-radial-gradient(rgb(240, 240, 240), #628CCD);
+    background:         radial-gradient(rgb(240, 240, 240), #628CCD);
+}
+
+/* step styles */
+
+div.step {
+    width: auto;
+}
+
+.step h1, .header {
+    margin-bottom: 20px; 
+    font-size: 50px;
+    font-weight: bold;
+    color: #628CCD;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.step h2 {
+    margin-top: 50px; 
+    margin-bottom: 10px; 
+    font-size: 45px;
+    font-weight: bold;
+}
+
+.step p, .step li {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.step table {
+    border: 1px solid black;
+    margin: 0 auto 50px auto;
+}
+
+.step a {
+    color: #628CCD;
+    text-decoration: none;
+}
+
+td, th {
+    border: 1px solid black;
+}
+
+th {
+   font-weight: bold;
+}
+
+.step td p, .step th p {
+    padding: 10px;
+    margin: 0px;
+}
+
+/* slide styles */
+
+div.slide {
+    display: block;
+
+    width: 850px;
+    height: 650px;
+    padding: 40px 60px;
+
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, .3);
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .1);
+
+}
+
+/* visual classes */
+
+div pre.code, div .box {
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, .3);
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .1);
+    font-size: 20px;
+}
+
+div p.box, div.box p, div.slide p {
+    font-size: 35px;
+}
+
+div.code {
+    white-space: pre;
+    font-family: monospace;
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, .3);
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .1);
+    font-size: 20px;
+    padding: 20px 20px;
+}
+
+div pre.code {
+    padding: 20px 20px;
+}
+
+div .box {
+    padding: 10px 20px;
+}
+
+div.highlight.present {
+    border: 5px solid red;
+    border-radius: 10px;
+}
+
+div.pop.present, div.pop.present pre.code {
+    font-size: 23px;
+}
+
+/* utilities */
+
+div.step .w400 {width: 400px;}
+div.step .w600 {width: 600px;}
+div.step .w800 {width: 800px;}
+div.step .center { text-align: center;}
+div.step .right { text-align: right;}
+div.step .sp100 {margin-top: 100px;}
+div.step .sp200 {margin-top: 200px;}
+div.step .sp300 {margin-top: 300px;}
+div.step .mg20 {margin-top: 40px; margin-bottom: 40px;}
+
+/* classes */
+p.block-quote {
+    font-size: 30px;
+    margin-top: 30px;
+    margin-bottom: 40px; 
+}
+
+/* specific slide styles */
+
+#title h1 {
+    margin-top: 200px;
+    margin-bottom: 100px; 
+}
+
+#title p {
+    font-size: 40px;
+    text-align: center;
+}
+
+#questions p {
+    font-size: 100px;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 200px
+}
+
+/* highlights */
+
+div#sample1 {
+    position: relative;
+    top: -120px;
+}
+
+div#test1 {
+    position:relative;
+    top: 120px;
+}
+
+div#sample2 {
+    position: relative;
+    top: 200px;
+}
+
+div#test2 {
+    position:relative;
+    top: -150px;
+}
+
+div#sample3 {
+    position: relative;
+    left: 260px;
+}
+
+div#sample4 {
+    position: relative;
+    left: 260px;
+}
+
+div#sample3 pre.code, div#sample4 pre.code {
+    font-size: 15px;
+}
+
+div#test5 pre.code {
+    position: relative;
+    top: 600px;
+}
+
+div#test6 pre.code{
+    position: relative;
+    top: 400px;
+}
+
+div#log1 pre.code {
+    position: relative;
+    top: -30px;
+}
+
+div#log2 pre.code {
+    position: relative;
+    top: 230px;
+}
+
+div#highlight-1 {
+    position: relative;
+    top: -29px;
+    width: 800px;
+    height: 213px;
+}
+
+div#highlight-2 {
+    position: relative;
+    top: 220px;
+    width: 811px;
+    height: 31px;
+}
+
+div#highlight-3 {
+    position: relative;
+    top: 71px;
+    width: 800px;
+    height: 92px;
+}
+
+div#highlight-4 {
+    position: relative;
+    bottom: -96px;
+    width: 800px;
+    height: 190px;
+}
+
+
+div#highlight-5 {
+    position: relative;
+    bottom: -154px;
+    width: 800px;
+    height: 28px;
+}
+
+
+div#highlight-6 {
+    position: relative;
+    top: 219px;
+    width: 800px;
+    height: 190px;
+}
+
+
+div#comparisons {
+    position: relative;
+    top: 350px;
+}
