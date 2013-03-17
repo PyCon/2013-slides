@@ -1,0 +1,155 @@
+body {
+    font-size: 200%;
+    text-align: center;
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility:    hidden;
+    -ms-backface-visibility:     hidden;
+}
+
+p {
+    font-size: 125%;
+    font-family: Cinzel;
+    font-weight: normal;
+    margin-bottom: 0.3em;
+    margin-top: 0.3em;
+} 
+
+h1, h2, h3, h4 {
+    font-family: Cinzel;
+    font-weight: normal;
+    margin-bottom: 0.3em;
+    margin-top: 0.3em;
+}
+
+ul {
+    -webkit-padding-start: 0; /* Chrome fix */
+}
+
+li {
+    font-size: 125%;
+    font-family: Cinzel;
+    font-weight: normal;
+    margin-bottom: 0.3em;
+    margin-top: 0.3em;
+    list-style-image: url('images/SPQR-gray.png');
+    list-style-position: inside;
+}
+
+pre {
+    font-family: DejaVuSansMonoBook;
+    text-align: left;
+    font-size: 100%;
+    margin-left: 2em;
+}
+
+tt {
+    font-family: DejaVuSansMonoBook;
+    font-size: 100%;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+.step {
+    width: 950px;
+}
+
+.step table {
+    font-size: 60%; 
+}
+
+@font-face {
+    font-family: 'DejaVuSansMonoBook';
+    src: url('fonts/dejavusansmono-webfont.eot');
+    src: url('fonts/dejavusansmono-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/dejavusansmono-webfont.woff') format('woff'),
+         url('fonts/dejavusansmono-webfont.ttf') format('truetype'),
+         url('fonts/dejavusansmono-webfont.svg#DejaVuSansMonoBook') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'Cinzel';
+    src: url('fonts/cinzel-regular-webfont.eot');
+    src: url('fonts/cinzel-regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/cinzel-regular-webfont.woff') format('woff'),
+         url('fonts/cinzel-regular-webfont.ttf') format('truetype'),
+         url('fonts/cinzel-regular-webfont.svg#cinzelregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Cinzel';
+    src: url('fonts/cinzel-bold-webfont.eot');
+    src: url('fonts/cinzel-bold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/cinzel-bold-webfont.woff') format('woff'),
+         url('fonts/cinzel-bold-webfont.ttf') format('truetype'),
+         url('fonts/cinzel-bold-webfont.svg#cinzelbold') format('svg');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Cinzel';
+    src: url('fonts/cinzel-black-webfont.eot');
+    src: url('fonts/cinzel-black-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/cinzel-black-webfont.woff') format('woff'),
+         url('fonts/cinzel-black-webfont.ttf') format('truetype'),
+         url('fonts/cinzel-black-webfont.svg#cinzelblack') format('svg');
+    font-weight: 900;
+    font-style: normal;
+}
+
+.notes {
+    display: none;
+}
+
+.unhide {
+    display: none;
+}
+
+.active .unhide {
+    display: block;
+}
+
+
+/* Special hacks for certain slides */
+
+#egyptiancode pre, 
+#juliancode pre {
+    font-size: 40%;
+    margin-left: 8em;
+}
+
+#tzdefinition pre {
+    font-size: 25%;
+    margin-left: 30em;
+}
+
+#cleopatra {
+    font-size: 95%;
+}
+
+#romanbug pre {
+    font-size: 78%;
+    margin-left: 1em;
+}
+
+#goodenough pre {
+    margin-left: 8em;
+}
+
+#recurrenceinput {
+    font-size: 60%;
+}
+
+marquee {
+  font-size: 60%;
+  height: 5em;
+  text-align: center;
+}
